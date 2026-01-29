@@ -9,6 +9,7 @@
 #include "joypad.h"
 #include "camera.h"
 #include "object.h"
+#include "texture.h"
 #include "utils.h"
 #include "libcd.h"
 #include <stdbool.h>
@@ -33,6 +34,7 @@ void Setup(void) {
 	setVector(&camera.position, 0, -600, -900);
 	camera.lookat = (MATRIX){0};
 
+	LoadTextureCMP("\\ALLSH.CMP;1");
 	LoadObjectPRM(&object, "\\ALLSH.PRM;1");
 }
 
