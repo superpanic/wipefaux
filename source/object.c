@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include "object.h"
+#include "globals.h"
+#include "inline_n.h"
+#include "display.h"
+#include "utils.h"
+#include "libgte.h"
+#include "globals.h"
 #include "utils.h"
 
 const char *type_names[] = {
@@ -339,6 +345,107 @@ void LoadObjectPRM(Object *object, char *filename) {
 		}
 	};
 
+	object->position.vx = object->origin.vx;
+	object->position.vy = object->origin.vy;
+	object->position.vz = object->origin.vz;
+	object->scale = (VECTOR) {ONE, ONE, ONE};
+	object->rotation = (SVECTOR) {0,0,0};
+
+	printf("object pos: %li %li %li\n", 
+		object->position.vx, 
+		object->position.vy, 
+		object->position.vz);
+
+	printf("object scale: %li %li %li\n", 
+		object->scale.vx, 
+		object->scale.vy, 
+		object->scale.vz);
 
 	free3(bytes);
+}
+
+void RenderObject(Object *object, Camera *camera) {
+	int i;
+	short nclip;
+	long otz, p, flg;
+
+	MATRIX worldmat;
+	MATRIX viewmat;
+
+	RotMatrix(&object->rotation, &worldmat);
+	TransMatrix(&worldmat, &object->position);
+	ScaleMatrix(&worldmat,&object->scale);
+
+	CompMatrixLV(&camera->lookat, &worldmat, &viewmat);
+	
+	SetRotMatrix(&viewmat);
+	SetTransMatrix(&viewmat);
+
+	for(i=0; i<object->num_primitives; i++) {
+		switch(object->primitives[i].type) {
+			case TypeF3:
+			case TypeFT3:
+			case TypeG3:
+			case TypeGT3: {
+				POLY_F3* poly;
+				F3* prm;
+				prm = (F3*) object->primitives[i].primitive;
+				poly = (POLY_F3*) GetNextPrim();
+				gte_ldv0(&object->verts[prm->coords[0]]);
+				gte_ldv1(&object->verts[prm->coords[1]]);
+				gte_ldv2(&object->verts[prm->coords[2]]);
+				gte_rtpt();
+				gte_nclip();
+				gte_stopz(&nclip);
+				if(nclip<0) {
+					continue;
+				}
+				gte_stsxy3(&poly->x0, &poly->x1, &poly->x2);
+				gte_avsz3();
+				gte_stotz(&otz);
+				if(otz > 0 && otz < OT_LEN) {
+					SetPolyF3(poly);
+					poly->r0 = 255;
+					poly->g0 = 255;
+					poly->b0 = 0;
+					addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
+					IncrementNextPrim(sizeof(POLY_F3));
+				}
+				break;
+			}
+			case TypeF4:
+			case TypeFT4:
+			case TypeG4:
+			case TypeGT4: {
+				POLY_F4 *poly;
+				F4 *prm;
+				prm = (F4*) object->primitives[i].primitive;
+				poly = (POLY_F4*) GetNextPrim();
+				gte_ldv0(&object->verts[prm->coords[0]]);
+				gte_ldv1(&object->verts[prm->coords[1]]);
+				gte_ldv2(&object->verts[prm->coords[2]]);
+				gte_rtpt();
+				gte_nclip();
+				gte_stopz(&nclip);
+				if(nclip < 0) {
+					continue;
+				}
+				gte_stsxy0(&poly->x0);
+				gte_ldv0(&object->verts[prm->coords[3]]);
+				gte_rtps();
+				gte_stsxy3(&poly->x1, &poly->x2, &poly->x3);
+				gte_avsz4();
+				gte_stotz(&otz);
+				if(otz > 0 && otz < OT_LEN) {
+					SetPolyF4(poly);
+					poly->r0 = 255;
+					poly->g0 = 0;
+					poly->b0 = 255;
+					addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
+					IncrementNextPrim(sizeof(POLY_F4));
+				}
+				break;
+			}
+		}
+	}
 }

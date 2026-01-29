@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include "globals.h"
 #include "libgte.h"
+#include "camera.h"
 
 typedef struct F3 {
 	short             type;          /* Type of primitive */
@@ -362,5 +363,6 @@ typedef struct Object {
 } Object;
 
 void LoadObjectPRM(Object *object, char *filename);
+void RenderObject(Object *object, Camera *camera);
 
 #endif

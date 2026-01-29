@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <libcd.h>
 
+// returns a malloc buffer, use free!
 char *FileRead(char *filename, u_long *length) {
 	CdlFILE filepos;
 	int numsectors;

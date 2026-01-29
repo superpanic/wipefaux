@@ -30,11 +30,10 @@ void Setup(void) {
 
 	ResetNextPrim(GetCurrentBuffer());
 
-	setVector(&camera.position, 500, -1000, -1200);
+	setVector(&camera.position, 0, -600, -900);
 	camera.lookat = (MATRIX){0};
 
-	Object obj = {0};
-	LoadObjectPRM(&obj, "\\ALLSH.PRM;1");
+	LoadObjectPRM(&object, "\\ALLSH.PRM;1");
 }
 
 void Update(void) {
@@ -42,12 +41,17 @@ void Update(void) {
 
 	JoyPadUpdate();
 
-	if(JoyPadCheck(PAD1_LEFT)) {}
-	if(JoyPadCheck(PAD1_RIGHT)) {}
-	if(JoyPadCheck(PAD1_UP)) {}
-	if(JoyPadCheck(PAD1_DOWN)) {}
-	if(JoyPadCheck(PAD1_CROSS)) {}
-	if(JoyPadCheck(PAD1_CIRCLE)) {}
+	if(JoyPadCheck(PAD1_LEFT)) { object.rotation.vy -= 15; }
+	if(JoyPadCheck(PAD1_RIGHT)) { object.rotation.vy += 15; }
+
+	LookAt(
+		&camera, 
+		&camera.position, 
+		&object.position, 
+		&(VECTOR){ 0, -ONE, 0 }
+	);
+
+	RenderObject(&object, &camera);
 }
 
 void Render(void) {
