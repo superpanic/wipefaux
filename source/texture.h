@@ -22,66 +22,66 @@
 #define ClutType(t) (t->flags & 7)
 
 typedef struct Texture {
-  short    type;
-  short    tpage;
-  short    clut;
-  short    clutX;
-  short    clutY;
-  short    clutW;
-  short    clutH;
-  short    textureX;
-  short    textureY;
-  short    textureW;
-  short    textureH;
-  short    u0;
-  short    v0;
-  short    u1;
-  short    v1;
-  short    u2;
-  short    v2;
-  short    u3;
-  short    v3;
+	short    type;
+	short    tpage;
+	short    clut;
+	short    clutX;
+	short    clutY;
+	short    clutW;
+	short    clutH;
+	short    textureX;
+	short    textureY;
+	short    textureW;
+	short    textureH;
+	short    u0;
+	short    v0;
+	short    u1;
+	short    v1;
+	short    u2;
+	short    v2;
+	short    u3;
+	short    v3;
 } Texture;
 
 typedef struct TimClut8 {
-  long     id;
-  long     flags;
-  long     clutBytes;
-  short    clutX;
-  short    clutY;
-  short    clutW;
-  short    clutH;
-  short    clut[256];
-  long     textureBytes;
-  short    textureX;
-  short    textureY;
-  short    textureW;
-  short    textureH;
+	long     id;
+	long     flags;
+	long     clutBytes;
+	short    clutX;
+	short    clutY;
+	short    clutW;
+	short    clutH;
+	short    clut[256];
+	long     textureBytes;
+	short    textureX;
+	short    textureY;
+	short    textureW;
+	short    textureH;
 } TimClut8;
 
 typedef struct TimClut4 {
-  long     id;
-  long     flags;
-  long     clutBytes;
-  short    clutX;
-  short    clutY;
-  short    clutW;
-  short    clutH;
-  short    clut[16];
-  long     textureBytes;
-  short    textureX;
-  short    textureY;
-  short    textureW;
-  short    textureH;
+	long     id;
+	long     flags;
+	long     clutBytes;
+	short    clutX;
+	short    clutY;
+	short    clutW;
+	short    clutH;
+	short    clut[16];
+	long     textureBytes;
+	short    textureX;
+	short    textureY;
+	short    textureW;
+	short    textureH;
 } TimClut4;
 
 typedef struct Tim {
-  long id;
-  long flags;
+	long id;
+	long flags;
 } Tim;
 
 void LoadTextureCMP(char *filename);
 
-void UploadTextureToVRAM(long timptr);
+Texture *UploadTextureToVRAM(long timptr);
 
 #endif
