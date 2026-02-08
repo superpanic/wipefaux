@@ -4,15 +4,27 @@
 #include "stddef.h"
 #include "sys/types.h"
 #include "utils.h"
-#include <assert.h>
 #include "lzss.h"
+#include <assert.h>
  
+static Texture *texturestore[MAX_TEXTURES];
+static u_short texturecount = 0;
+
+Texture *GetFromTextureStore(u_short i) {
+	return texturestore[i];
+}
+
+u_short GetTextureCount(void) {
+	return texturecount;
+}
+
 void LoadTextureCMP(char *filename) {
 	u_long b, i;
 	u_long length;
 	u_char *bytes;
 	u_short numtextures;
 	void *timsbaseaddr;
+	Texture *texture;
 
 	// file read
 	bytes = (u_char*) FileRead(filename, &length);
@@ -36,7 +48,7 @@ void LoadTextureCMP(char *filename) {
 		u_long timsize;
 		timoffsets[i] = totaltimsize;
 		timsize = GetLongLE(bytes, &b);
-		printf("TIM %d size (uncompressed) %d\n", i, timsize);
+		printf("TIM %d size (uncompressed) %lu\n", i, timsize);
 		totaltimsize += timsize;
 	}
 
@@ -57,9 +69,14 @@ void LoadTextureCMP(char *filename) {
 	free3(bytes);	
 
 	for(i=0;i<numtextures;i++) {
-		printf("texture: %d: ", i);
-		UploadTextureToVRAM(timoffsets[i]);
+		printf("texture: %lu: ", i);
+		texture = UploadTextureToVRAM(timoffsets[i]);
+		assert(texturecount < MAX_TEXTURES);
+		if(texture != NULL) {
+			texturestore[texturecount++] = texture;
+		}
 	}
+	free3(timsbaseaddr); // since all textures are uploaded to vram, we can free.
 }
 
 // returns malloced texture

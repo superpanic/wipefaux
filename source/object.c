@@ -9,6 +9,7 @@
 #include "libgte.h"
 #include "globals.h"
 #include "utils.h"
+#include "texture.h"
 
 const char *type_names[] = {
 	"F3",
@@ -44,6 +45,8 @@ void LoadObjectPRM(Object *object, char *filename) {
 	u_long b;
 	u_long i;
 	u_long length;
+	u_short u_offset, v_offset;
+	Texture *texture;
 
 	bytes = (u_char*) FileRead(filename, &length);
 
@@ -145,6 +148,20 @@ void LoadObjectPRM(Object *object, char *filename) {
 				prm->v2        = GetChar(bytes, &b);
 				prm->pad1      = GetShortBE(bytes, &b);
 				prm->color     = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
+
+				texture = GetFromTextureStore(prm->texture);
+
+				prm->tpage = texture->tpage;
+				prm->clut = texture->clut;
+
+				u_offset = texture->u0;
+				v_offset = texture->v0;
+				prm->u0 += u_offset;
+				prm->v0 += v_offset;
+				prm->u1 += u_offset;
+				prm->v1 += v_offset;
+				prm->u2 += u_offset;
+				prm->v2 += v_offset;
 				break;
 			}
 			case TypeF4: {
@@ -183,6 +200,23 @@ void LoadObjectPRM(Object *object, char *filename) {
 				prm->v3        = GetChar(bytes, &b);
 				prm->pad1      = GetShortBE(bytes, &b);
 				prm->color     = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
+
+				texture = GetFromTextureStore(prm->texture);
+
+				prm->tpage = texture->tpage;
+				prm->clut = texture->clut;
+
+				u_offset = texture->u0;
+				v_offset = texture->v0;
+				prm->u0 += u_offset;
+				prm->v0 += v_offset;
+				prm->u1 += u_offset;
+				prm->v1 += v_offset;
+				prm->u2 += u_offset;
+				prm->v2 += v_offset;
+				prm->u3 += u_offset;
+				prm->v3 += v_offset;
+
 				break;
 			}
 			case TypeG3: {
@@ -222,6 +256,21 @@ void LoadObjectPRM(Object *object, char *filename) {
 				prm->color[0]  = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
 				prm->color[1]  = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
 				prm->color[2]  = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
+
+				texture = GetFromTextureStore(prm->texture);
+
+				prm->tpage = texture->tpage;
+				prm->clut = texture->clut;
+
+				u_offset = texture->u0;
+				v_offset = texture->v0;
+				prm->u0 += u_offset;
+				prm->v0 += v_offset;
+				prm->u1 += u_offset;
+				prm->v1 += v_offset;
+				prm->u2 += u_offset;
+				prm->v2 += v_offset;
+
 				break;
 			}
 			case TypeG4: {
@@ -266,6 +315,23 @@ void LoadObjectPRM(Object *object, char *filename) {
 				prm->color[1]  = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
 				prm->color[2]  = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
 				prm->color[3]  = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
+
+				texture = GetFromTextureStore(prm->texture);
+
+				prm->tpage = texture->tpage;
+				prm->clut = texture->clut;
+
+				u_offset = texture->u0;
+				v_offset = texture->v0;
+				prm->u0 += u_offset;
+				prm->v0 += v_offset;
+				prm->u1 += u_offset;
+				prm->v1 += v_offset;
+				prm->u2 += u_offset;
+				prm->v2 += v_offset;
+				prm->u3 += u_offset;
+				prm->v3 += v_offset;
+
 				break;
 			}
 			case TypeTSPR:

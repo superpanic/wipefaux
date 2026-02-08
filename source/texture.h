@@ -21,6 +21,8 @@
 
 #define ClutType(t) (t->flags & 7)
 
+#define MAX_TEXTURES (800)
+
 typedef struct Texture {
 	short    type;
 	short    tpage;
@@ -79,6 +81,9 @@ typedef struct Tim {
 	long id;
 	long flags;
 } Tim;
+
+Texture *GetFromTextureStore(u_short i);
+u_short GetTextureCount(void);
 
 void LoadTextureCMP(char *filename);
 
