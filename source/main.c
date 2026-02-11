@@ -17,13 +17,15 @@
 extern char __heap_start, __sp;
 
 Camera camera;
-Object object;
+Object ship;
+Object rescue;
 
 void HeapSize(int size) {
 	InitHeap3((unsigned long *)(&__heap_start), (&__sp - size) - &__heap_start);
 }
 
 void Setup(void) {
+	u_short texture_counter;
 	HeapSize(0x5000); // 20480
 	ScreenInit();
 	CdInit();
@@ -34,8 +36,13 @@ void Setup(void) {
 	setVector(&camera.position, 0, -600, -900);
 	camera.lookat = (MATRIX){0};
 
+	texture_counter = GetTextureCount();
 	LoadTextureCMP("\\ALLSH.CMP;1");
-	LoadObjectPRM(&object, "\\ALLSH.PRM;1");
+	LoadObjectPRM(&ship, "\\ALLSH.PRM;1", texture_counter);
+
+	texture_counter = GetTextureCount();
+	LoadTextureCMP("\\RESCU.CMP;1");
+	LoadObjectPRM(&rescue, "\\RESCU.PRM;1", texture_counter);
 }
 
 void Update(void) {
@@ -43,17 +50,17 @@ void Update(void) {
 
 	JoyPadUpdate();
 
-	if(JoyPadCheck(PAD1_LEFT)) { object.rotation.vy -= 15; }
-	if(JoyPadCheck(PAD1_RIGHT)) { object.rotation.vy += 15; }
+	if(JoyPadCheck(PAD1_LEFT)) { rescue.rotation.vy -= 15; }
+	if(JoyPadCheck(PAD1_RIGHT)) { rescue.rotation.vy += 15; }
 
 	LookAt(
 		&camera, 
 		&camera.position, 
-		&object.position, 
+		&rescue.position, 
 		&(VECTOR){ 0, -ONE, 0 }
 	);
 
-	RenderObject(&object, &camera);
+	RenderObject(&rescue, &camera);
 }
 
 void Render(void) {

@@ -362,7 +362,7 @@ typedef struct Object {
 	VECTOR scale;
 } Object;
 
-void LoadObjectPRM(Object *object, char *filename);
+void LoadObjectPRM(Object *object, char *filename, u_short texture_counter);
 void RenderObject(Object *object, Camera *camera);
 
 #endif

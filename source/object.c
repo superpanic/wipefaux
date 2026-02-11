@@ -5,6 +5,7 @@
 #include "globals.h"
 #include "inline_n.h"
 #include "display.h"
+#include "libgpu.h"
 #include "utils.h"
 #include "libgte.h"
 #include "globals.h"
@@ -40,7 +41,7 @@ const char *type_names[] = {
 	"SpotLight"
 };
 
-void LoadObjectPRM(Object *object, char *filename) {
+void LoadObjectPRM(Object *object, char *filename, u_short texture_counter) {
 	u_char *bytes;
 	u_long b;
 	u_long i;
@@ -149,6 +150,7 @@ void LoadObjectPRM(Object *object, char *filename) {
 				prm->pad1      = GetShortBE(bytes, &b);
 				prm->color     = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
 
+				prm->texture += texture_counter;
 				texture = GetFromTextureStore(prm->texture);
 
 				prm->tpage = texture->tpage;
@@ -201,6 +203,7 @@ void LoadObjectPRM(Object *object, char *filename) {
 				prm->pad1      = GetShortBE(bytes, &b);
 				prm->color     = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
 
+				prm->texture += texture_counter;
 				texture = GetFromTextureStore(prm->texture);
 
 				prm->tpage = texture->tpage;
@@ -257,6 +260,7 @@ void LoadObjectPRM(Object *object, char *filename) {
 				prm->color[1]  = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
 				prm->color[2]  = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
 
+				prm->texture += texture_counter;
 				texture = GetFromTextureStore(prm->texture);
 
 				prm->tpage = texture->tpage;
@@ -316,6 +320,7 @@ void LoadObjectPRM(Object *object, char *filename) {
 				prm->color[2]  = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
 				prm->color[3]  = (CVECTOR) { GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b), GetChar(bytes, &b) };
 
+				prm->texture += texture_counter;
 				texture = GetFromTextureStore(prm->texture);
 
 				prm->tpage = texture->tpage;
@@ -449,10 +454,7 @@ void RenderObject(Object *object, Camera *camera) {
 
 	for(i=0; i<object->num_primitives; i++) {
 		switch(object->primitives[i].type) {
-			case TypeF3:
-			case TypeFT3:
-			case TypeG3:
-			case TypeGT3: {
+			case TypeF3: {
 				POLY_F3* poly;
 				F3* prm;
 				prm = (F3*) object->primitives[i].primitive;
@@ -471,18 +473,98 @@ void RenderObject(Object *object, Camera *camera) {
 				gte_stotz(&otz);
 				if(otz > 0 && otz < OT_LEN) {
 					SetPolyF3(poly);
-					poly->r0 = 255;
-					poly->g0 = 255;
-					poly->b0 = 0;
+					setRGB0(poly, prm->color.r, prm->color.g, prm->color.b);
 					addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
 					IncrementNextPrim(sizeof(POLY_F3));
 				}
 				break;
 			}
-			case TypeF4:
-			case TypeFT4:
-			case TypeG4:
-			case TypeGT4: {
+			case TypeG3: {
+				POLY_G3* poly;
+				G3* prm;
+				prm = (G3*) object->primitives[i].primitive;
+				poly = (POLY_G3*) GetNextPrim();
+				gte_ldv0(&object->verts[prm->coords[0]]);
+				gte_ldv1(&object->verts[prm->coords[1]]);
+				gte_ldv2(&object->verts[prm->coords[2]]);
+				gte_rtpt();
+				gte_nclip();
+				gte_stopz(&nclip);
+				if(nclip<0) {
+					continue;
+				}
+				gte_stsxy3(&poly->x0, &poly->x1, &poly->x2);
+				gte_avsz3();
+				gte_stotz(&otz);
+				if(otz > 0 && otz < OT_LEN) {
+					SetPolyG3(poly);
+					setRGB0(poly, prm->color[0].r, prm->color[0].g, prm->color[0].b);
+					setRGB1(poly, prm->color[1].r, prm->color[1].g, prm->color[1].b);
+					setRGB2(poly, prm->color[2].r, prm->color[2].g, prm->color[2].b);
+					addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
+					IncrementNextPrim(sizeof(POLY_G3));
+				}
+				break;
+			}
+			case TypeFT3: {
+				POLY_FT3* poly;
+				FT3* prm;
+				prm = (FT3*) object->primitives[i].primitive;
+				poly = (POLY_FT3*) GetNextPrim();
+				gte_ldv0(&object->verts[prm->coords[0]]);
+				gte_ldv1(&object->verts[prm->coords[1]]);
+				gte_ldv2(&object->verts[prm->coords[2]]);
+				gte_rtpt();
+				gte_nclip();
+				gte_stopz(&nclip);
+				if(nclip<0) {
+					continue;
+				}
+				gte_stsxy3(&poly->x0, &poly->x1, &poly->x2);
+				gte_avsz3();
+				gte_stotz(&otz);
+				if(otz > 0 && otz < OT_LEN) {
+					SetPolyFT3(poly);
+					setRGB0(poly, prm->color.r, prm->color.g, prm->color.b);
+					poly->tpage = prm->tpage;
+					poly->clut = prm->clut;
+					setUV3(poly, prm->u0, prm->v0, prm->u1, prm->v1, prm->u2, prm->v2);
+					addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
+					IncrementNextPrim(sizeof(POLY_FT3));
+				}
+				break;
+			}
+			case TypeGT3: {
+				POLY_GT3* poly;
+				GT3* prm;
+				prm = (GT3*) object->primitives[i].primitive;
+				poly = (POLY_GT3*) GetNextPrim();
+				gte_ldv0(&object->verts[prm->coords[0]]);
+				gte_ldv1(&object->verts[prm->coords[1]]);
+				gte_ldv2(&object->verts[prm->coords[2]]);
+				gte_rtpt();
+				gte_nclip();
+				gte_stopz(&nclip);
+				if(nclip<0) {
+					continue;
+				}
+				gte_stsxy3(&poly->x0, &poly->x1, &poly->x2);
+				gte_avsz3();
+				gte_stotz(&otz);
+				if(otz > 0 && otz < OT_LEN) {
+					SetPolyGT3(poly);
+					setRGB0(poly, prm->color[0].r, prm->color[0].g, prm->color[0].b);
+					setRGB1(poly, prm->color[1].r, prm->color[1].g, prm->color[1].b);
+					setRGB2(poly, prm->color[2].r, prm->color[2].g, prm->color[2].b);
+					poly->tpage = prm->tpage;
+					poly->clut = prm->clut;
+					setUV3(poly, prm->u0, prm->v0, prm->u1, prm->v1, prm->u2, prm->v2);
+					addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
+					IncrementNextPrim(sizeof(POLY_GT3));
+				}
+				break;
+			}
+			case TypeF4: {
 				POLY_F4 *poly;
 				F4 *prm;
 				prm = (F4*) object->primitives[i].primitive;
@@ -504,14 +586,114 @@ void RenderObject(Object *object, Camera *camera) {
 				gte_stotz(&otz);
 				if(otz > 0 && otz < OT_LEN) {
 					SetPolyF4(poly);
-					poly->r0 = 255;
-					poly->g0 = 0;
-					poly->b0 = 255;
+					setRGB0(poly, prm->color.r, prm->color.g, prm->color.b);
+
 					addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
 					IncrementNextPrim(sizeof(POLY_F4));
 				}
 				break;
 			}
+			case TypeFT4: {
+				POLY_FT4 *poly;
+				FT4 *prm;
+				prm = (FT4*) object->primitives[i].primitive;
+				poly = (POLY_FT4*) GetNextPrim();
+				gte_ldv0(&object->verts[prm->coords[0]]);
+				gte_ldv1(&object->verts[prm->coords[1]]);
+				gte_ldv2(&object->verts[prm->coords[2]]);
+				gte_rtpt();
+				gte_nclip();
+				gte_stopz(&nclip);
+				if(nclip < 0) {
+					continue;
+				}
+				gte_stsxy0(&poly->x0);
+				gte_ldv0(&object->verts[prm->coords[3]]);
+				gte_rtps();
+				gte_stsxy3(&poly->x1, &poly->x2, &poly->x3);
+				gte_avsz4();
+				gte_stotz(&otz);
+				if(otz > 0 && otz < OT_LEN) {
+					SetPolyFT4(poly);
+					setRGB0(poly, prm->color.r, prm->color.g, prm->color.b);
+					poly->tpage = prm->tpage;
+					poly->clut = prm->clut;
+					setUV4(poly, prm->u0, prm->v0, prm->u1, prm->v1, prm->u2, prm->v2, prm->u3, prm->v3);
+
+					addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
+					IncrementNextPrim(sizeof(POLY_FT4));
+				}
+				break;
+			}
+			case TypeG4: {
+				POLY_G4 *poly;
+				G4 *prm;
+				prm = (G4*) object->primitives[i].primitive;
+				poly = (POLY_G4*) GetNextPrim();
+				gte_ldv0(&object->verts[prm->coords[0]]);
+				gte_ldv1(&object->verts[prm->coords[1]]);
+				gte_ldv2(&object->verts[prm->coords[2]]);
+				gte_rtpt();
+				gte_nclip();
+				gte_stopz(&nclip);
+				if(nclip < 0) {
+					continue;
+				}
+				gte_stsxy0(&poly->x0);
+				gte_ldv0(&object->verts[prm->coords[3]]);
+				gte_rtps();
+				gte_stsxy3(&poly->x1, &poly->x2, &poly->x3);
+				gte_avsz4();
+				gte_stotz(&otz);
+				if(otz > 0 && otz < OT_LEN) {
+					SetPolyG4(poly);
+					setRGB0(poly, prm->color[0].r, prm->color[1].g, prm->color[2].b);
+					setRGB1(poly, prm->color[0].r, prm->color[1].g, prm->color[2].b);
+					setRGB2(poly, prm->color[0].r, prm->color[1].g, prm->color[2].b);
+					setRGB3(poly, prm->color[0].r, prm->color[1].g, prm->color[2].b);
+
+					addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
+					IncrementNextPrim(sizeof(POLY_G4));
+				}
+				break;
+			}
+			case TypeGT4: {
+				POLY_GT4 *poly;
+				GT4 *prm;
+				prm = (GT4*) object->primitives[i].primitive;
+				poly = (POLY_GT4*) GetNextPrim();
+				gte_ldv0(&object->verts[prm->coords[0]]);
+				gte_ldv1(&object->verts[prm->coords[1]]);
+				gte_ldv2(&object->verts[prm->coords[2]]);
+				gte_rtpt();
+				gte_nclip();
+				gte_stopz(&nclip);
+				if(nclip < 0) {
+					continue;
+				}
+				gte_stsxy0(&poly->x0);
+				gte_ldv0(&object->verts[prm->coords[3]]);
+				gte_rtps();
+				gte_stsxy3(&poly->x1, &poly->x2, &poly->x3);
+				gte_avsz4();
+				gte_stotz(&otz);
+				if(otz > 0 && otz < OT_LEN) {
+					SetPolyGT4(poly);
+					setRGB0(poly, prm->color[0].r, prm->color[1].g, prm->color[2].b);
+					setRGB1(poly, prm->color[0].r, prm->color[1].g, prm->color[2].b);
+					setRGB2(poly, prm->color[0].r, prm->color[1].g, prm->color[2].b);
+					setRGB3(poly, prm->color[0].r, prm->color[1].g, prm->color[2].b);
+					poly->tpage = prm->tpage;
+					poly->clut = prm->clut;
+					setUV4(poly, prm->u0, prm->v0, prm->u1, prm->v1, prm->u2, prm->v2, prm->u3, prm->v3);
+					
+					addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
+					IncrementNextPrim(sizeof(POLY_GT4));
+				}
+				break;
+			}
+
+			
 		}
 	}
 }
