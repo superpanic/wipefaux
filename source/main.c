@@ -13,12 +13,12 @@
 #include "utils.h"
 #include "libcd.h"
 #include <stdbool.h>
+#include <stdio.h>
 
 extern char __heap_start, __sp;
 
 Camera camera;
-Object ship;
-Object rescue;
+Object object;
 
 void HeapSize(int size) {
 	InitHeap3((unsigned long *)(&__heap_start), (&__sp - size) - &__heap_start);
@@ -37,12 +37,15 @@ void Setup(void) {
 	camera.lookat = (MATRIX){0};
 
 	texture_counter = GetTextureCount();
-	LoadTextureCMP("\\ALLSH.CMP;1");
-	LoadObjectPRM(&ship, "\\ALLSH.PRM;1", texture_counter);
-
-	texture_counter = GetTextureCount();
-	LoadTextureCMP("\\RESCU.CMP;1");
-	LoadObjectPRM(&rescue, "\\RESCU.PRM;1", texture_counter);
+	LoadTextureCMP("\\ALLSH.CMP;1"); // all textures for all ships
+	
+	u_char n_ships = LoadObjectsPRM(&object, "\\ALLSH.PRM;1", texture_counter);
+	
+	Object *o = &object;
+	for(u_char i=0; i<n_ships; i++) {
+		printf("ship %s loaded\n",o->name);
+		o=o->next;
+	}
 }
 
 void Update(void) {
@@ -50,17 +53,17 @@ void Update(void) {
 
 	JoyPadUpdate();
 
-	if(JoyPadCheck(PAD1_LEFT)) { rescue.rotation.vy -= 15; }
-	if(JoyPadCheck(PAD1_RIGHT)) { rescue.rotation.vy += 15; }
+	if(JoyPadCheck(PAD1_LEFT)) { object.rotation.vy -= 15; }
+	if(JoyPadCheck(PAD1_RIGHT)) { object.rotation.vy += 15; }
 
 	LookAt(
 		&camera, 
 		&camera.position, 
-		&rescue.position, 
+		&object.position, 
 		&(VECTOR){ 0, -ONE, 0 }
 	);
 
-	RenderObject(&rescue, &camera);
+	RenderObject(&object, &camera);
 }
 
 void Render(void) {

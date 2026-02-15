@@ -7,6 +7,7 @@
 
 #define OT_LEN 8192
 #define PRIMBUFF_LEN 131072
+#define DEBUG false
 
 void EmptyOT(u_short currbuff);
 

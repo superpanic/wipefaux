@@ -360,9 +360,12 @@ typedef struct Object {
 	SVECTOR rotation;
 	VECTOR position;
 	VECTOR scale;
+
+	struct Object *next;
+	struct Object *prev;
 } Object;
 
-void LoadObjectPRM(Object *object, char *filename, u_short texture_counter);
+u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter);
 void RenderObject(Object *object, Camera *camera);
 
 #endif
