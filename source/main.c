@@ -19,6 +19,7 @@ extern char __heap_start, __sp;
 
 Camera camera;
 Object object;
+Object *current_object;
 
 void HeapSize(int size) {
 	InitHeap3((unsigned long *)(&__heap_start), (&__sp - size) - &__heap_start);
@@ -40,12 +41,26 @@ void Setup(void) {
 	LoadTextureCMP("\\ALLSH.CMP;1"); // all textures for all ships
 	
 	u_char n_ships = LoadObjectsPRM(&object, "\\ALLSH.PRM;1", texture_counter);
-	
-	Object *o = &object;
-	for(u_char i=0; i<n_ships; i++) {
-		printf("ship %s loaded\n",o->name);
-		o=o->next;
+	PrintObjectNames(&object, n_ships);
+	current_object = &object;
+}
+
+void NextObject() {
+	if(current_object->next) {
+		current_object = current_object->next;
+		current_object->rotation.vy = 0;
 	}
+}
+
+void PrevObject() {
+	if(current_object->prev) {
+		current_object = current_object->prev;
+		current_object->rotation.vy = 0;
+	}
+}
+
+void PrintPrev() {
+	printf("previous: %s\n", current_object->prev->name);
 }
 
 void Update(void) {
@@ -53,17 +68,20 @@ void Update(void) {
 
 	JoyPadUpdate();
 
-	if(JoyPadCheck(PAD1_LEFT)) { object.rotation.vy -= 15; }
-	if(JoyPadCheck(PAD1_RIGHT)) { object.rotation.vy += 15; }
+	if(JoyLeftDown()) { PrevObject(); }
+	if(JoyRightDown()) { NextObject(); }
+	if(JoyDownDown()) { PrintPrev(); }
+
+	current_object->rotation.vy += 2;
 
 	LookAt(
 		&camera, 
 		&camera.position, 
-		&object.position, 
+		&current_object->position, 
 		&(VECTOR){ 0, -ONE, 0 }
 	);
 
-	RenderObject(&object, &camera);
+	RenderObject(current_object, &camera);
 }
 
 void Render(void) {

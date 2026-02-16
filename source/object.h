@@ -367,5 +367,6 @@ typedef struct Object {
 
 u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter);
 void RenderObject(Object *object, Camera *camera);
+void PrintObjectNames(Object *root, u_char n_ships);
 
 #endif

@@ -48,7 +48,7 @@ u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter) {
 	u_long length;
 	u_short u_offset, v_offset;
 	Texture *texture;
-	static u_char ship_counter;
+	u_char ship_counter;
 
 	bytes = (u_char*) FileRead(filename, &length);
 
@@ -58,18 +58,18 @@ u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter) {
 	}
 
 	Object *object = root;
+	root->prev = NULL;
+
 	b = 0;
 	while(b < length) {
 		ship_counter++;
 		// check if this is first run
 		if(b > 0) {
-			// alloc the next object
 			object->next = (Object *)malloc3(sizeof(Object));
 			if(object->next == NULL) return 0;
-			// assign current object to previous 
 			object->next->prev = object;
-			// make next the current object 
-			object = object->next; 
+			object->next->next = NULL;
+			object = object->next;
 		}
 
 		for (i = 0; i < 16; i++) {
@@ -448,12 +448,10 @@ u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter) {
 				object->scale.vz);
 		}
 	}
+	object->next = NULL;
 	free3(bytes);
 	
 	printf("no of ships loaded: %d\n", ship_counter);
-	printf("name of first ship is: %s\n", root->name);
-	printf("name of second ship is: %s\n", root->next->name);
-	printf("name of third ship is: %s\n", root->next->next->name);
 
 	return ship_counter;
 }
@@ -718,5 +716,13 @@ void RenderObject(Object *object, Camera *camera) {
 
 			
 		}
+	}
+}
+
+void PrintObjectNames(Object *root, u_char n_ships) {
+	Object *o = root;
+	for(u_char i=0; i<n_ships; i++) {
+		printf("ship %s loaded\n",o->name);
+		o=o->next;
 	}
 }

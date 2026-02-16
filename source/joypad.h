@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #ifndef JOYPAD_H
 #define JOYPAD_H
 
@@ -40,6 +42,9 @@
 #define PAD2_R1 _PAD(1, PADR1)
 
 int JoyPadCheck(int p);
+bool JoyLeftDown();
+bool JoyRightDown();
+bool JoyDownDown();
 void JoyPadInit(void);
 void JoyPadReset(void);
 void JoyPadUpdate(void);
