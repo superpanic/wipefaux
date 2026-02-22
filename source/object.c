@@ -80,17 +80,14 @@ u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter) {
 		object->num_verts = GetShortBE(bytes, &b);
 		object->verts = NULL;
 		b += 6; // unused padding
-		printf("Num verts = %d \n", object->num_verts);
 
 		object->num_normals = GetShortBE(bytes, &b);
 		object->normals = NULL;
 		b += 6; // unused padding
-		printf("Num normals = %d \n", object->num_normals);
 
 		object->num_primitives = GetShortBE(bytes, &b);
 		//object->primitives = NULL;
 		b += 22; // unused padding
-		printf("Num primitives = %d \n", object->num_primitives);
 
 		object->flags = GetShortBE(bytes, &b);
 		b += 26; // unused padding
@@ -98,7 +95,6 @@ u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter) {
 		object->origin.vx = GetLongBE(bytes, &b);
 		object->origin.vy = GetLongBE(bytes, &b);
 		object->origin.vz = GetLongBE(bytes, &b);
-		printf("Origin (%ld, %ld, %ld) \n", object->origin.vx, object->origin.vy, object->origin.vz);
 
 		// Skip unused bytes ("skeleton" information, rotation matrices, and extra flags)
 		b += 48;
@@ -109,7 +105,6 @@ u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter) {
 			object->verts[i].vy = (GetShortBE(bytes, &b));
 			object->verts[i].vz = (GetShortBE(bytes, &b));
 			b += 2; // padding
-			if(DEBUG) printf("Vertex[%d] = (%d, %d, %d) \n", i, object->verts[i].vx, object->verts[i].vy, object->verts[i].vz);
 		}
 
 		object->normals = (SVECTOR *) malloc3(object->num_normals * sizeof(SVECTOR));
@@ -118,7 +113,6 @@ u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter) {
 			object->normals[i].vy = GetShortBE(bytes, &b);
 			object->normals[i].vz = GetShortBE(bytes, &b);
 			b += 2; // padding
-			if(DEBUG) printf("Normal[%d] = (%d, %d, %d) \n", i, object->normals[i].vx, object->normals[i].vy, object->normals[i].vz);
 		}
 
 		object->primitives = (PrimitiveNode *) malloc3(object->num_primitives * sizeof(PrimitiveNode));
@@ -451,7 +445,7 @@ u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter) {
 	object->next = NULL;
 	free3(bytes);
 	
-	printf("no of ships loaded: %d\n", ship_counter);
+	printf("no of objects loaded: %d\n", ship_counter);
 
 	return ship_counter;
 }

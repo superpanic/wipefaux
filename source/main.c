@@ -21,6 +21,9 @@ Camera camera;
 Object *ships;
 Object *current_ship;
 
+Object *scene_objects;
+
+
 u_short angle = 0;
 
 void HeapSize(int size) {
@@ -28,7 +31,8 @@ void HeapSize(int size) {
 }
 
 void Setup(void) {
-	u_short texture_counter;
+	u_short ship_texture_counter;
+	u_short scene_texture_counter;
 	HeapSize(0x5000); // 20480
 	ScreenInit();
 	CdInit();
@@ -39,13 +43,20 @@ void Setup(void) {
 	setVector(&camera.position, 0, -600, -900);
 	camera.lookat = (MATRIX){0};
 
-	texture_counter = GetTextureCount();
+	ship_texture_counter = GetTextureCount();
 	LoadTextureCMP("\\ALLSH.CMP;1"); // all textures for all ships
+
+	scene_texture_counter = GetTextureCount();
+	LoadTextureCMP("\\TRACK02\\SCENE.CMP;1"); // all textures for the scene
 	
 	ships = (Object *) malloc3(sizeof(Object));
-	u_char n_ships = LoadObjectsPRM(ships, "\\ALLSH.PRM;1", texture_counter);
+	u_char n_ships = LoadObjectsPRM(ships, "\\ALLSH.PRM;1", ship_texture_counter);
 	PrintObjectNames(ships, n_ships);
 	current_ship = ships;
+
+	scene_objects = (Object *) malloc3(sizeof(Object));
+	u_char n_scene_objects = LoadObjectsPRM(scene_objects, "\\TRACK02\\SCENE.PRM;1", scene_texture_counter);
+
 }
 
 void NextObject() {
