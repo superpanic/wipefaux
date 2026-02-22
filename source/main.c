@@ -18,8 +18,10 @@
 extern char __heap_start, __sp;
 
 Camera camera;
-Object object;
-Object *current_object;
+Object *ships;
+Object *current_ship;
+
+u_short angle = 0;
 
 void HeapSize(int size) {
 	InitHeap3((unsigned long *)(&__heap_start), (&__sp - size) - &__heap_start);
@@ -40,27 +42,26 @@ void Setup(void) {
 	texture_counter = GetTextureCount();
 	LoadTextureCMP("\\ALLSH.CMP;1"); // all textures for all ships
 	
-	u_char n_ships = LoadObjectsPRM(&object, "\\ALLSH.PRM;1", texture_counter);
-	PrintObjectNames(&object, n_ships);
-	current_object = &object;
+	ships = (Object *) malloc3(sizeof(Object));
+	u_char n_ships = LoadObjectsPRM(ships, "\\ALLSH.PRM;1", texture_counter);
+	PrintObjectNames(ships, n_ships);
+	current_ship = ships;
 }
 
 void NextObject() {
-	if(current_object->next) {
-		current_object = current_object->next;
-		current_object->rotation.vy = 0;
+	if(current_ship->next) {
+		current_ship = current_ship->next;
 	}
 }
 
 void PrevObject() {
-	if(current_object->prev) {
-		current_object = current_object->prev;
-		current_object->rotation.vy = 0;
+	if(current_ship->prev) {
+		current_ship = current_ship->prev;
 	}
 }
 
 void PrintPrev() {
-	printf("previous: %s\n", current_object->prev->name);
+	printf("previous: %s\n", current_ship->prev->name);
 }
 
 void Update(void) {
@@ -72,16 +73,17 @@ void Update(void) {
 	if(JoyRightDown()) { NextObject(); }
 	if(JoyDownDown()) { PrintPrev(); }
 
-	current_object->rotation.vy += 2;
+	angle += 2;
+	current_ship->rotation.vy = angle;
 
 	LookAt(
 		&camera, 
 		&camera.position, 
-		&current_object->position, 
+		&current_ship->position, 
 		&(VECTOR){ 0, -ONE, 0 }
 	);
 
-	RenderObject(current_object, &camera);
+	RenderObject(current_ship, &camera);
 }
 
 void Render(void) {

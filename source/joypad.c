@@ -10,30 +10,30 @@ int JoyPadCheck(int p) {
 };
 
 bool JoyLeftDown() {
-	static bool left_down = false;
+	static bool hold_left = false;
 	if( JoyPadCheck(PAD1_LEFT) ) {
-		if( left_down ) {
+		if( hold_left ) {
 			return false;
 		} else {
-			left_down = true;
+			hold_left = true;
 			return true;
 		}	
 	} 
-	left_down = false;
+	hold_left = false;
 	return false;
 }
 
 bool JoyRightDown() {
-	static bool right_down = false;
+	static bool hold_right = false;
 	if( JoyPadCheck(PAD1_RIGHT) ) {
-		if( right_down ) {
+		if( hold_right ) {
 			return false;
 		} else {
-			right_down = true;
+			hold_right = true;
 			return true;
 		}	
 	} 
-	right_down = false;
+	hold_right = false;
 	return false;
 }
 
