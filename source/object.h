@@ -365,7 +365,10 @@ typedef struct Object {
 	struct Object *prev;
 } Object;
 
+
+Object *GetObjectByIndex(Object *root, u_short index);
 u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter);
+void RenderSceneObjects(Object *list, Camera *camera);
 void RenderObject(Object *object, Camera *camera);
 void PrintObjectNames(Object *root, u_char n_ships);
 

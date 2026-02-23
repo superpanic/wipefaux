@@ -20,6 +20,7 @@ extern char __heap_start, __sp;
 Camera camera;
 Object *ships;
 Object *current_ship;
+u_short ship_index;
 
 Object *scene_objects;
 
@@ -52,7 +53,7 @@ void Setup(void) {
 	ships = (Object *) malloc3(sizeof(Object));
 	u_char n_ships = LoadObjectsPRM(ships, "\\ALLSH.PRM;1", ship_texture_counter);
 	PrintObjectNames(ships, n_ships);
-	current_ship = ships;
+	current_ship = GetObjectByIndex(ships,ship_index);
 
 	scene_objects = (Object *) malloc3(sizeof(Object));
 	u_char n_scene_objects = LoadObjectsPRM(scene_objects, "\\TRACK02\\SCENE.PRM;1", scene_texture_counter);
@@ -60,15 +61,13 @@ void Setup(void) {
 }
 
 void NextObject() {
-	if(current_ship->next) {
+	if(current_ship->next)
 		current_ship = current_ship->next;
-	}
 }
 
 void PrevObject() {
-	if(current_ship->prev) {
+	if(current_ship->prev)
 		current_ship = current_ship->prev;
-	}
 }
 
 void PrintPrev() {
@@ -80,9 +79,27 @@ void Update(void) {
 
 	JoyPadUpdate();
 
-	if(JoyLeftDown()) { PrevObject(); }
-	if(JoyRightDown()) { NextObject(); }
-	if(JoyDownDown()) { PrintPrev(); }
+	if(JoyPadCheck(PAD1_LEFT)) {
+		camera.position.vx -= 100;
+	}
+
+	if(JoyPadCheck(PAD1_RIGHT)) {
+		camera.position.vx += 100;
+	}
+
+	if(JoyPadCheck(PAD1_UP)) {
+		camera.position.vz += 100;
+	}
+
+	if(JoyPadCheck(PAD1_DOWN)) {
+		camera.position.vz -= 100;
+	}
+
+	/* select ship
+		if(JoyLeftDown()) { PrevObject(); }
+		if(JoyRightDown()) { NextObject(); }
+		if(JoyDownDown()) { PrintPrev(); }
+	*/
 
 	angle += 2;
 	current_ship->rotation.vy = angle;
@@ -94,6 +111,7 @@ void Update(void) {
 		&(VECTOR){ 0, -ONE, 0 }
 	);
 
+	RenderSceneObjects(scene_objects, &camera);
 	RenderObject(current_ship, &camera);
 }
 

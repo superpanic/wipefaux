@@ -48,7 +48,6 @@ void LoadTextureCMP(char *filename) {
 		u_long timsize;
 		timoffsets[i] = totaltimsize;
 		timsize = GetLongLE(bytes, &b);
-		printf("TIM %d size (uncompressed) %lu\n", i, timsize);
 		totaltimsize += timsize;
 	}
 

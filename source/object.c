@@ -720,3 +720,35 @@ void PrintObjectNames(Object *root, u_char n_ships) {
 		o=o->next;
 	}
 }
+
+Object *GetObjectByIndex(Object *root, u_short index) {
+	Object *currobj;
+	u_short i=0;
+	currobj = root;
+	while(currobj != NULL) {
+		if(i >= index) {
+			break;
+		}
+		currobj = currobj->next;
+		i++;
+	}
+	return currobj;
+}
+
+void RenderSceneObjects(Object *list, Camera *camera) {
+	Object *currobj;
+	VECTOR d;
+	u_long distmagsq;
+	const u_long far_clip = 1000000000;
+	currobj = list;
+	while(currobj != NULL) {
+		d.vx = currobj->position.vx - camera->position.vx;
+		d.vy = currobj->position.vy - camera->position.vy;
+		d.vz = currobj->position.vz - camera->position.vz;
+		distmagsq = (d.vx * d.vx) + (d.vy * d.vy) + (d.vz * d.vz);
+		if(distmagsq < far_clip) {
+			RenderObject(currobj, camera);
+		}
+		currobj = currobj->next;
+	}
+}
