@@ -739,7 +739,7 @@ void RenderSceneObjects(Object *list, Camera *camera) {
 	Object *currobj;
 	VECTOR d;
 	u_long distmagsq;
-	const u_long far_clip = 1000000000;
+	const u_long far_clip = 700000000;
 	currobj = list;
 	while(currobj != NULL) {
 		d.vx = currobj->position.vx - camera->position.vx;
