@@ -22,6 +22,8 @@ Object *ships;
 Object *current_ship;
 u_short ship_index;
 
+Track track;
+
 Object *scene_objects;
 
 u_short angle = 0;
@@ -51,8 +53,8 @@ void Setup(void) {
 	if(DEBUG) PrintObjectNames(ships, n_ships);
 	current_ship = GetObjectByIndex(ships,ship_index);
 
-	scene_objects = (Object *) malloc3(sizeof(Object));
-	u_char n_scene_objects = LoadObjectsPRM(scene_objects, "\\TRACK02\\SCENE.PRM;1", scene_texture_counter);
+	//scene_objects = (Object *) malloc3(sizeof(Object));
+	//u_char n_scene_objects = LoadObjectsPRM(scene_objects, "\\TRACK02\\SCENE.PRM;1", scene_texture_counter);
 
 	setVector(&current_ship->position, 32599, -347, -45310);
 	setVector(&camera.position, current_ship->position.vx, current_ship->position.vy-100, current_ship->position.vz-1000);
@@ -112,7 +114,7 @@ void Update(void) {
 		&(VECTOR){ 0, -ONE, 0 }
 	);
 
-	RenderSceneObjects(scene_objects, &camera);
+	//RenderSceneObjects(scene_objects, &camera);
 	RenderObject(current_ship, &camera);
 }
 

@@ -24,6 +24,10 @@
 			<dir name="TRACK02">
 				<file name="SCENE.CMP" type="data" source="ASSETS\TRACK02\SCENE.CMP"/>
 				<file name="SCENE.PRM" type="data" source="ASSETS\TRACK02\SCENE.PRM"/>
+
+				<file name="TRACK.TRV" type="data" source="ASSETS\TRACK02\TRACK.TRV"/>
+				<file name="TRACK.TRF" type="data" source="ASSETS\TRACK02\TRACK.TRF"/>
+				<file name="TRACK.TRS" type="data" source="ASSETS\TRACK02\TRACK.TRS"/>
 			</dir>
 			<dummy sectors="1024"/>
 		</directory_tree>
