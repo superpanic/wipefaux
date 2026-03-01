@@ -14,6 +14,7 @@
 #include "libcd.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include "track.h"
 
 extern char __heap_start, __sp;
 
@@ -48,10 +49,14 @@ void Setup(void) {
 	scene_texture_counter = GetTextureCount();
 	LoadTextureCMP("\\TRACK02\\SCENE.CMP;1"); // all textures for the scene
 	
+	LoadTrackVertices( &track, "\\TRACK02\\TRACK.TRV;1" ); // .TRV file
+	LoadTrackFaces( &track, "\\TRACK02\\TRACK.TRF;1" );    // .TRF file
+	LoadTrackSections( &track, "\\TRACK02\\TRACK.TRS;1" ); // .TRS file
+
 	ships = (Object *) malloc3(sizeof(Object));
 	u_char n_ships = LoadObjectsPRM(ships, "\\ALLSH.PRM;1", ship_texture_counter);
 	if(DEBUG) PrintObjectNames(ships, n_ships);
-	current_ship = GetObjectByIndex(ships,ship_index);
+	current_ship = GetObjectByIndex(ships,1);
 
 	//scene_objects = (Object *) malloc3(sizeof(Object));
 	//u_char n_scene_objects = LoadObjectsPRM(scene_objects, "\\TRACK02\\SCENE.PRM;1", scene_texture_counter);

@@ -4,6 +4,13 @@
 #include <sys/types.h>
 #include <libgte.h>
 
+#define FACE_TRACK_BASE         1
+#define FACE_WEAPON_GRID_LEFT   2
+#define FACE_FLIP_TEXTURE       4
+#define FACE_WEAPON_GRID_RIGHT  8
+#define FACE_START_GRID        16
+#define FACE_SPEED_UP          32
+
 typedef struct Face {
 	short indices[4];
 	char flags;
@@ -43,5 +50,8 @@ typedef struct Section {
 	Section *sections;
  } Track;
  
+void LoadTrackVertices(Track *track, char *filename); // .TRV file
+void LoadTrackFaces(Track *track, char *filename);    // .TRF file
+void LoadTrackSections(Track *track, char *filename); // .TRS file
 
 #endif
