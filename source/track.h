@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 #include <libgte.h>
+#include "camera.h"
 
 #define FACE_TRACK_BASE         1
 #define FACE_WEAPON_GRID_LEFT   2
@@ -10,6 +11,10 @@
 #define FACE_WEAPON_GRID_RIGHT  8
 #define FACE_START_GRID        16
 #define FACE_SPEED_UP          32
+
+#define BYTES_PER_VERTEX   16
+#define BYTES_PER_FACE     20
+#define BYTES_PER_SECTION  156
 
 typedef struct Face {
 	short indices[4];
@@ -41,7 +46,7 @@ typedef struct Section {
 
  typedef struct Track {
 	long numvertices;
-	VECTOR *vertices;
+	VECTOR *vertices; // vertices are long values!
 
 	long numfaces;
 	Face *faces;
@@ -53,5 +58,8 @@ typedef struct Section {
 void LoadTrackVertices(Track *track, char *filename); // .TRV file
 void LoadTrackFaces(Track *track, char *filename);    // .TRF file
 void LoadTrackSections(Track *track, char *filename); // .TRS file
+
+void RenderTrackSection(Track *track, Section *section, Camera *camera);
+void RenderTrack(Track *track, Camera *camera);
 
 #endif

@@ -53,6 +53,10 @@ void Setup(void) {
 	LoadTrackFaces( &track, "\\TRACK02\\TRACK.TRF;1" );    // .TRF file
 	LoadTrackSections( &track, "\\TRACK02\\TRACK.TRS;1" ); // .TRS file
 
+	printf("NUM TRACK VERTICES: %d\n", track.numvertices);
+	printf("NUM TRACK FACES: %d\n", track.numfaces);
+	printf("NUM TRACK SECTIONS: %d\n", track.numsections);
+
 	ships = (Object *) malloc3(sizeof(Object));
 	u_char n_ships = LoadObjectsPRM(ships, "\\ALLSH.PRM;1", ship_texture_counter);
 	if(DEBUG) PrintObjectNames(ships, n_ships);
@@ -97,10 +101,12 @@ void Update(void) {
 
 	if(JoyPadCheck(PAD1_UP)) {
 		camera.position.vz += 100;
+		current_ship->position.vz += 100;
 	}
 
 	if(JoyPadCheck(PAD1_DOWN)) {
 		camera.position.vz -= 100;
+		current_ship->position.vz -= 100;
 	}
 
 	/* select ship
@@ -120,6 +126,7 @@ void Update(void) {
 	);
 
 	//RenderSceneObjects(scene_objects, &camera);
+	RenderTrack(&track, &camera);
 	RenderObject(current_ship, &camera);
 }
 
