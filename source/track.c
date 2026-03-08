@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "track.h"
@@ -11,6 +12,10 @@
 void LoadTrackVertices(Track *track, char *filename) {
 	u_long i, b, length;
 	u_char *bytes;
+	u_long biggest_val = 0;
+	u_long smallest_val = LONG_MAX;
+	printf("biggest value init: %ld\n", biggest_val);
+	printf("smallest value init: %ld\n", smallest_val);
 	bytes = (u_char *) FileRead(filename, &length);
 	if(bytes == NULL) {
 		printf("Error reading %s from the CD.\n", filename);
@@ -84,7 +89,7 @@ void LoadTrackSections(Track *track, char *filename) {
 		track->sections[i].center.vx = GetLongBE(bytes, &b);
 		track->sections[i].center.vy = GetLongBE(bytes, &b);
 		track->sections[i].center.vz = GetLongBE(bytes, &b);
-
+		
 		b += 118;
 
 		track->sections[i].facestart = GetShortBE(bytes, &b);
@@ -164,7 +169,7 @@ void RenderTrack(Track *track, Camera *camera) {
 	VECTOR d;
 	u_long distmagsq;
 	u_long distmag;
-	const u_long far_clip = 150000;
+	const u_long far_clip = 32000;
 	current_section = track->sections;
 	do {
 		d.vx = current_section->center.vx - camera->position.vx;

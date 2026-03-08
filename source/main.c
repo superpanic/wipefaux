@@ -115,8 +115,9 @@ void Update(void) {
 		if(JoyDownDown()) { PrintPrev(); }
 	*/
 
-	angle += 2;
-	current_ship->rotation.vy = angle;
+	// rotate ship
+	//angle += 2;
+	//current_ship->rotation.vy = angle;
 
 	LookAt(
 		&camera, 
