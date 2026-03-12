@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "track.h"
 #include "globals.h"
+#include "libgpu.h"
 #include "utils.h"
 #include "inline_n.h"
 #include "libgte.h"
@@ -109,9 +110,11 @@ void LoadTrackSections(Track *track, char *filename) {
 
 void RenderTrackSection(Track *track, Section *section, Camera *camera) {
 	u_long i;
-	POLY_F4 *poly;
 	short nclip; // can be positive or negative
 	long otz;
+
+	LINE_F2 *line0, *line1, *line2, *line3;
+	POLY_F4 *poly;
 
 	MATRIX worldmat;
 	MATRIX viewmat;
@@ -119,6 +122,8 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera) {
 	VECTOR pos;
 	SVECTOR rot;
 	VECTOR scale;
+
+	SVECTOR v0, v1, v2, v3;
 
 	setVector(&pos,0,0,0);
 	setVector(&rot,0,0,0);
@@ -128,16 +133,35 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera) {
 	RotMatrix(&rot, &worldmat);
 	TransMatrix(&worldmat, &pos);
 	ScaleMatrix(&worldmat,&scale);
-	CompMatrixLV(&camera->lookat, &worldmat, &viewmat);
+//	CompMatrixLV(&camera->lookat, &worldmat, &viewmat);
+	CompMatrixLV(&camera->rotmat, &worldmat, &viewmat);
 	SetRotMatrix(&viewmat);
 	SetTransMatrix(&viewmat);
 
 	for(i=0; i<section->numfaces;i++) {
 		Face *face = track->faces + section->facestart + i;
 		poly = (POLY_F4 *)GetNextPrim();
-		gte_ldv0(&track->vertices[face->indices[0]]); // pointer to vector
-		gte_ldv1(&track->vertices[face->indices[1]]); // pointer to vector
-		gte_ldv2(&track->vertices[face->indices[2]]); // pointer to vector
+
+		v0.vx = (short) (track->vertices[face->indices[1]].vx - camera->position.vx);
+		v0.vy = (short) (track->vertices[face->indices[1]].vy - camera->position.vy);
+		v0.vz = (short) (track->vertices[face->indices[1]].vz - camera->position.vz);
+
+		v1.vx = (short) (track->vertices[face->indices[0]].vx - camera->position.vx);
+		v1.vy = (short) (track->vertices[face->indices[0]].vy - camera->position.vy);
+		v1.vz = (short) (track->vertices[face->indices[0]].vz - camera->position.vz);
+
+		v2.vx = (short) (track->vertices[face->indices[2]].vx - camera->position.vx);
+		v2.vy = (short) (track->vertices[face->indices[2]].vy - camera->position.vy);
+		v2.vz = (short) (track->vertices[face->indices[2]].vz - camera->position.vz);
+
+		v3.vx = (short) (track->vertices[face->indices[3]].vx - camera->position.vx);
+		v3.vy = (short) (track->vertices[face->indices[3]].vy - camera->position.vy);
+		v3.vz = (short) (track->vertices[face->indices[3]].vz - camera->position.vz);
+
+		gte_ldv0(&v0); // pointer to vector
+		gte_ldv1(&v1); // pointer to vector
+		gte_ldv2(&v2); // pointer to vector
+		
 		gte_rtpt(); // rotation translate perspective
 		gte_nclip(); // normal clip
 		gte_stopz(&nclip); // store outer product
@@ -147,7 +171,7 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera) {
 		gte_stsxy0(&poly->x0); // store screen xy
 		
 		// 4th vertex
-		gte_ldv0(&track->vertices[face->indices[3]]);
+		gte_ldv0(&v3);
 		gte_rtps(); // rotation translate perspective
 		gte_stsxy3(&poly->x1, &poly->x2, &poly->x3);
 
@@ -160,8 +184,43 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera) {
 			poly->b0 = face->color.b;
 			addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
 			IncrementNextPrim(sizeof(POLY_F4));
+
+			// draw lines
+			line0 = (LINE_F2*) GetNextPrim();
+			SetLineF2(line0);
+			setXY2(line0, poly->x0, poly->y0, poly->x1, poly->y1);
+			setRGB0(line0,0,0,0);
+			addPrim(GetOTAt(GetCurrentBuffer(), 0), line0);
+			IncrementNextPrim(sizeof(LINE_F2));
+
+			line1 = (LINE_F2*) GetNextPrim();
+			SetLineF2(line1);
+			setXY2(line1, poly->x1, poly->y1, poly->x3, poly->y3);
+			setRGB0(line1,0,0,0);
+			addPrim(GetOTAt(GetCurrentBuffer(), 0), line1);
+			IncrementNextPrim(sizeof(LINE_F2));
+
+			line2 = (LINE_F2*) GetNextPrim();
+			SetLineF2(line2);
+			setXY2(line2, poly->x3, poly->y3, poly->x2, poly->y2);
+			setRGB0(line2,0,0,0);
+			addPrim(GetOTAt(GetCurrentBuffer(), 0), line2);
+			IncrementNextPrim(sizeof(LINE_F2));
+
+			line3 = (LINE_F2*) GetNextPrim();
+			SetLineF2(line3);
+			setXY2(line3, poly->x2, poly->y2, poly->x0, poly->y0);
+			setRGB0(line3,0,0,0);
+			addPrim(GetOTAt(GetCurrentBuffer(), 0), line3);
+			IncrementNextPrim(sizeof(LINE_F2));
 		}
 	}
+}
+
+long Clamp16Bits(long value) {
+	if(value > +32767) return +32767;
+	if(value < -32767) return -32767;
+	return value;
 }
 
 void RenderTrack(Track *track, Camera *camera) {
@@ -169,12 +228,12 @@ void RenderTrack(Track *track, Camera *camera) {
 	VECTOR d;
 	u_long distmagsq;
 	u_long distmag;
-	const u_long far_clip = 32000;
+	const u_long far_clip = 950000;
 	current_section = track->sections;
 	do {
-		d.vx = current_section->center.vx - camera->position.vx;
-		d.vy = current_section->center.vy - camera->position.vy;
-		d.vz = current_section->center.vz - camera->position.vz;
+		d.vx = Clamp16Bits(current_section->center.vx - camera->position.vx);
+		d.vy = Clamp16Bits(current_section->center.vy - camera->position.vy);
+		d.vz = Clamp16Bits(current_section->center.vz - camera->position.vz);
 		distmagsq = (d.vx*d.vx) + (d.vy*d.vy) + (d.vz*d.vz);
 		distmag = SquareRoot12(distmagsq);
 		if(distmag <= far_clip) {

@@ -23,6 +23,8 @@
 
 #define MAX_TEXTURES (800)
 
+#define BYTES_PER_TILE (42)
+
 typedef struct Texture {
 	short    type;
 	short    tpage;
@@ -82,10 +84,14 @@ typedef struct Tim {
 	long flags;
 } Tim;
 
+typedef struct Tile {
+	u_short tileindex;
+} Tile;
+
 Texture *GetFromTextureStore(u_short i);
 u_short GetTextureCount(void);
 
-void LoadTextureCMP(char *filename);
+void LoadTextureCMP(char *filenamecmp, char *filenamettf);
 
 Texture *UploadTextureToVRAM(long timptr);
 

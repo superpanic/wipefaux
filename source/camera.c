@@ -1,5 +1,6 @@
 #include "camera.h"
 #include "libgte.h"
+#include "string.h"
 
 void VectorCross(VECTOR *a, VECTOR *b, VECTOR *out) {
 	OuterProduct12(a, b, out);
@@ -36,6 +37,12 @@ void LookAt(Camera *camera, VECTOR *eye, VECTOR *target, VECTOR *up) {
 	pos.vx = -eye->vx;
 	pos.vy = -eye->vy;
 	pos.vz = -eye->vz;
+
+	// save the rotation part into camera.rotmat
+	// memcpy(camera->rotmat.m, camera->lookat.m, sizeof(short)*3*3);
+	camera->rotmat.m[0][0] = x.vx; camera->rotmat.m[0][1] = x.vy; camera->rotmat.m[0][2] = x.vz;
+	camera->rotmat.m[1][0] = y.vx; camera->rotmat.m[1][1] = y.vy; camera->rotmat.m[1][2] = y.vz;
+	camera->rotmat.m[2][0] = z.vx; camera->rotmat.m[2][1] = z.vy; camera->rotmat.m[2][2] = z.vz;
 
 	ApplyMatrixLV(&camera->lookat, &pos, &t);
 	TransMatrix(&camera->lookat, &t);

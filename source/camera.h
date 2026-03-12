@@ -8,6 +8,7 @@ typedef struct Camera {
 	VECTOR position;
 	SVECTOR rotation;
 	MATRIX lookat;
+	MATRIX rotmat;
 } Camera;
 
 void LookAt(Camera *camera, VECTOR *eye, VECTOR *target, VECTOR *up);

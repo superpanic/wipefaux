@@ -34,8 +34,10 @@ void HeapSize(int size) {
 }
 
 void Setup(void) {
-	u_short ship_texture_counter;
-	u_short scene_texture_counter;
+	u_short shipstarttexture;
+	u_short scenestarttexture;
+	u_short trackstarttexture;
+
 	HeapSize(0x5000); // 20480
 	ScreenInit();
 	CdInit();
@@ -43,12 +45,17 @@ void Setup(void) {
 
 	ResetNextPrim(GetCurrentBuffer());
 
-	ship_texture_counter = GetTextureCount();
-	LoadTextureCMP("\\ALLSH.CMP;1"); // all textures for all ships
+	shipstarttexture = GetTextureCount();
+	LoadTextureCMP("\\ALLSH.CMP;1", NULL); // all textures for all ships
 
-	scene_texture_counter = GetTextureCount();
-	LoadTextureCMP("\\TRACK02\\SCENE.CMP;1"); // all textures for the scene
+	scenestarttexture = GetTextureCount();
+	LoadTextureCMP("\\TRACK02\\SCENE.CMP;1", NULL); // all textures for the scene
 	
+	// load textures and tile information from the CD-rom
+	trackstarttexture = GetTextureCount();
+	LoadTextureCMP("\\TRACK02\\LIBRARY.CMP;1", "\\TRACK02\\LIBRARY.TTF;1");
+
+	// load track vertices, faces and sections
 	LoadTrackVertices( &track, "\\TRACK02\\TRACK.TRV;1" ); // .TRV file
 	LoadTrackFaces( &track, "\\TRACK02\\TRACK.TRF;1" );    // .TRF file
 	LoadTrackSections( &track, "\\TRACK02\\TRACK.TRS;1" ); // .TRS file
@@ -58,7 +65,7 @@ void Setup(void) {
 	printf("NUM TRACK SECTIONS: %d\n", track.numsections);
 
 	ships = (Object *) malloc3(sizeof(Object));
-	u_char n_ships = LoadObjectsPRM(ships, "\\ALLSH.PRM;1", ship_texture_counter);
+	u_char n_ships = LoadObjectsPRM(ships, "\\ALLSH.PRM;1", shipstarttexture);
 	if(DEBUG) PrintObjectNames(ships, n_ships);
 	current_ship = GetObjectByIndex(ships,1);
 
@@ -66,10 +73,9 @@ void Setup(void) {
 	//u_char n_scene_objects = LoadObjectsPRM(scene_objects, "\\TRACK02\\SCENE.PRM;1", scene_texture_counter);
 
 	setVector(&current_ship->position, 32599, -347, -45310);
-	setVector(&camera.position, current_ship->position.vx, current_ship->position.vy-100, current_ship->position.vz-1000);
+	setVector(&camera.position, current_ship->position.vx, current_ship->position.vy-200, current_ship->position.vz-800);
 	camera.lookat = (MATRIX){0};
-
-
+	camera.rotmat = (MATRIX){0};
 }
 
 void NextObject() {

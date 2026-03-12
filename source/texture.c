@@ -18,7 +18,7 @@ u_short GetTextureCount(void) {
 	return texturecount;
 }
 
-void LoadTextureCMP(char *filename) {
+void LoadTextureCMP(char *filenamecmp, char *filenamettf) {
 	u_long b, i;
 	u_long length;
 	u_char *bytes;
@@ -27,9 +27,9 @@ void LoadTextureCMP(char *filename) {
 	Texture *texture;
 
 	// file read
-	bytes = (u_char*) FileRead(filename, &length);
+	bytes = (u_char*) FileRead(filenamecmp, &length);
 	if(bytes == NULL) {
-		printf("Error reading %s from the CD.\n", filename);
+		printf("Error reading %s from the CD.\n", filenamecmp);
 		return; // do not free, as bytes is NULL!
 	}
 
@@ -67,14 +67,42 @@ void LoadTextureCMP(char *filename) {
 
 	free3(bytes);	
 
-	for(i=0;i<numtextures;i++) {
-		printf("texture: %lu: ", i);
-		texture = UploadTextureToVRAM(timoffsets[i]);
-		assert(texturecount < MAX_TEXTURES);
-		if(texture != NULL) {
-			texturestore[texturecount++] = texture;
+	if(filenamettf == NULL) {
+		// upload all textures to VRAM
+		for(i=0;i<numtextures;i++) {
+			texture = UploadTextureToVRAM(timoffsets[i]);
+			assert(texturecount < MAX_TEXTURES);
+			if(texture != NULL) {
+				texturestore[texturecount++] = texture;
+			}
 		}
+	} else { 
+		// tile textures, we need to look at the TTF indices
+		Tile *tiles;
+		u_short numtiles;
+		bytes = (u_char *) FileRead(filenamettf, &length);
+		if(bytes == NULL) {
+			printf("error reading %s from the CD.\n", filenamettf);
+			return;
+		}
+		numtiles = length / BYTES_PER_TILE;
+		tiles = (Tile *) malloc3(sizeof(Tile) * numtiles);
+		b = 0;
+		for(i=0;i<numtiles;i++) {
+			b+=16*2; // bypass hi-res tiles 
+			b+=4*2; // bypass mid-res tiles
+			// load  lo-res tiles
+			tiles[i].tileindex = GetShortBE(bytes, &b);
+			texture = UploadTextureToVRAM(timoffsets[tiles[i].tileindex]);
+			assert(texturecount < MAX_TEXTURES);
+			if(texture != NULL) {
+				texturestore[texturecount++] = texture;
+			}
+		}
+		free(tiles);
+		free(bytes);
 	}
+
 	free3(timsbaseaddr); // since all textures are uploaded to vram, we can free.
 }
 
