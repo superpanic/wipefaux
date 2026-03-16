@@ -10,6 +10,11 @@
 static Texture *texturestore[MAX_TEXTURES];
 static u_short texturecount = 0;
 
+static u_short textx = 320;
+static u_short texty = 0; 
+static u_short clutx = 320;
+static u_short cluty = 256;
+
 Texture *GetFromTextureStore(u_short i) {
 	return texturestore[i];
 }
@@ -119,6 +124,28 @@ Texture *UploadTextureToVRAM(long timptr) {
 			TimClut4 *tc4;
 			tc4 = (TimClut4*) tim; // now cast again, but to full struct
 			texture = (Texture*)malloc3(sizeof(Texture));
+
+			if(!tc4->textureX && !tc4->textureY) {
+				tc4->textureX = textx;
+				tc4->textureY = texty;
+				tc4->clutX = clutx;
+				tc4->clutY = cluty;
+				tc4->clutW = 16;
+				tc4->clutH = 1;
+				
+				texty += 32;
+				if(texty >= 256) {
+					textx += 8;
+					texty  = 0;
+				}
+
+				clutx += 16;
+				if(clutx >= 384) {
+					clutx  = 320;
+					cluty +=   1;
+				}
+
+			}
 
 			texture->type = CLUT4;
 			texture->textureX = tc4->textureX;
