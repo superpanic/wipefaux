@@ -57,7 +57,7 @@ void Setup(void) {
 
 	// load track vertices, faces and sections
 	LoadTrackVertices( &track, "\\TRACK02\\TRACK.TRV;1" ); // .TRV file
-	LoadTrackFaces( &track, "\\TRACK02\\TRACK.TRF;1" );    // .TRF file
+	LoadTrackFaces( &track, "\\TRACK02\\TRACK.TRF;1", trackstarttexture);    // .TRF file
 	LoadTrackSections( &track, "\\TRACK02\\TRACK.TRS;1" ); // .TRS file
 
 	printf("NUM TRACK VERTICES: %d\n", track.numvertices);

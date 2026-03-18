@@ -8,6 +8,7 @@
 #include "inline_n.h"
 #include "libgte.h"
 #include "display.h"
+#include "texture.h"
 
 
 void LoadTrackVertices(Track *track, char *filename) {
@@ -34,9 +35,10 @@ void LoadTrackVertices(Track *track, char *filename) {
 	free3(bytes);
 }
 
-void LoadTrackFaces(Track *track, char *filename) {
+void LoadTrackFaces(Track *track, char *filename, u_short texture_counter) {
 	u_long i, b, length;
 	u_char *bytes;
+	Texture *texture;
 	bytes = (u_char *) FileRead(filename, &length);
 	if(bytes == NULL) {
 		printf("Error reading %s from the CD.\n", filename);
@@ -65,6 +67,35 @@ void LoadTrackFaces(Track *track, char *filename) {
 		f->color.g  = GetChar(bytes, &b);
 		f->color.b  = GetChar(bytes, &b);
 		f->color.cd = GetChar(bytes, &b);
+
+		f->texture += texture_counter;
+		texture = GetFromTextureStore(f->texture);
+		f->tpage = texture->tpage;
+		f->clut = texture->clut;
+
+		// 
+		if(f->flags & FACE_FLIP_TEXTURE) {
+			// flip texture
+			f->u0 = texture->u1;
+			f->v0 = texture->v1;
+			f->u1 = texture->u0;
+			f->v1 = texture->v0;
+			f->u2 = texture->u3;
+			f->v2 = texture->v3;
+			f->u3 = texture->u2;
+			f->v3 = texture->v2;
+		} else {
+			// normal texture
+			f->u0 = texture->u0;
+			f->v0 = texture->v0;
+			f->u1 = texture->u1;
+			f->v1 = texture->v1;
+			f->u2 = texture->u2;
+			f->v2 = texture->v2;
+			f->u3 = texture->u3;
+			f->v3 = texture->v3;
+		}
+
 	}
 	free3(bytes);
 }
@@ -114,7 +145,7 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera) {
 	long otz;
 
 	LINE_F2 *line0, *line1, *line2, *line3;
-	POLY_F4 *poly;
+	POLY_FT4 *poly;
 
 	MATRIX worldmat;
 	MATRIX viewmat;
@@ -140,7 +171,7 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera) {
 
 	for(i=0; i<section->numfaces;i++) {
 		Face *face = track->faces + section->facestart + i;
-		poly = (POLY_F4 *)GetNextPrim();
+		poly = (POLY_FT4 *)GetNextPrim();
 
 		v0.vx = (short) (track->vertices[face->indices[1]].vx - camera->position.vx);
 		v0.vy = (short) (track->vertices[face->indices[1]].vy - camera->position.vy);
@@ -178,12 +209,15 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera) {
 		gte_avsz4(); // average z
 		gte_stotz(&otz); // 
 		if(otz > 0 && otz < OT_LEN) {
-			setPolyF4(poly);
+			setPolyFT4(poly);
 			poly->r0 = face->color.r;
 			poly->g0 = face->color.g;
 			poly->b0 = face->color.b;
+			poly->tpage = face->tpage;
+			poly->clut = face->clut;
+			setUV4(poly, face->u0, face->v0, face->u1, face->v1, face->u2, face->v2, face->u3, face->v3);
 			addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
-			IncrementNextPrim(sizeof(POLY_F4));
+			IncrementNextPrim(sizeof(POLY_FT4));
 
 			// draw lines
 			line0 = (LINE_F2*) GetNextPrim();

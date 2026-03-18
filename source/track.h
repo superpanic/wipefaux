@@ -56,7 +56,7 @@ typedef struct Section {
  } Track;
  
 void LoadTrackVertices(Track *track, char *filename); // .TRV file
-void LoadTrackFaces(Track *track, char *filename);    // .TRF file
+void LoadTrackFaces(Track *track, char *filename, u_short texture_counter);    // .TRF file
 void LoadTrackSections(Track *track, char *filename); // .TRS file
 
 void RenderTrackSection(Track *track, Section *section, Camera *camera);
