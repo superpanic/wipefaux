@@ -139,70 +139,28 @@ void LoadTrackSections(Track *track, char *filename) {
 	free3(bytes);
 }
 
-void RenderTrackSection(Track *track, Section *section, Camera *camera) {
-	u_long i;
-	short nclip; // can be positive or negative
-	long otz;
+void RenderQuadRecursive(Face *face, SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, u_short level, u_short depth) {
+	if(level >= depth) {
+		short nclip; // can be positive or negative
+		long otz;
+		LINE_F2 *line0, *line1, *line2, *line3;
+		POLY_FT4 *poly;
 
-	LINE_F2 *line0, *line1, *line2, *line3;
-	POLY_FT4 *poly;
-
-	MATRIX worldmat;
-	MATRIX viewmat;
-
-	VECTOR pos;
-	SVECTOR rot;
-	VECTOR scale;
-
-	SVECTOR v0, v1, v2, v3;
-
-	setVector(&pos,0,0,0);
-	setVector(&rot,0,0,0);
-	setVector(&scale,ONE,ONE,ONE);
-
-	worldmat = (MATRIX){0};
-	RotMatrix(&rot, &worldmat);
-	TransMatrix(&worldmat, &pos);
-	ScaleMatrix(&worldmat,&scale);
-//	CompMatrixLV(&camera->lookat, &worldmat, &viewmat);
-	CompMatrixLV(&camera->rotmat, &worldmat, &viewmat);
-	SetRotMatrix(&viewmat);
-	SetTransMatrix(&viewmat);
-
-	for(i=0; i<section->numfaces;i++) {
-		Face *face = track->faces + section->facestart + i;
 		poly = (POLY_FT4 *)GetNextPrim();
-
-		v0.vx = (short) (track->vertices[face->indices[1]].vx - camera->position.vx);
-		v0.vy = (short) (track->vertices[face->indices[1]].vy - camera->position.vy);
-		v0.vz = (short) (track->vertices[face->indices[1]].vz - camera->position.vz);
-
-		v1.vx = (short) (track->vertices[face->indices[0]].vx - camera->position.vx);
-		v1.vy = (short) (track->vertices[face->indices[0]].vy - camera->position.vy);
-		v1.vz = (short) (track->vertices[face->indices[0]].vz - camera->position.vz);
-
-		v2.vx = (short) (track->vertices[face->indices[2]].vx - camera->position.vx);
-		v2.vy = (short) (track->vertices[face->indices[2]].vy - camera->position.vy);
-		v2.vz = (short) (track->vertices[face->indices[2]].vz - camera->position.vz);
-
-		v3.vx = (short) (track->vertices[face->indices[3]].vx - camera->position.vx);
-		v3.vy = (short) (track->vertices[face->indices[3]].vy - camera->position.vy);
-		v3.vz = (short) (track->vertices[face->indices[3]].vz - camera->position.vz);
-
-		gte_ldv0(&v0); // pointer to vector
-		gte_ldv1(&v1); // pointer to vector
-		gte_ldv2(&v2); // pointer to vector
-		
+		gte_ldv0(v0); // pointer to vector
+		gte_ldv1(v1); // pointer to vector
+		gte_ldv2(v2); // pointer to vector
 		gte_rtpt(); // rotation translate perspective
 		gte_nclip(); // normal clip
 		gte_stopz(&nclip); // store outer product
 		if(nclip < 0) {
-			continue;
+			return;
 		}
+
 		gte_stsxy0(&poly->x0); // store screen xy
 		
 		// 4th vertex
-		gte_ldv0(&v3);
+		gte_ldv0(v3);
 		gte_rtps(); // rotation translate perspective
 		gte_stsxy3(&poly->x1, &poly->x2, &poly->x3);
 
@@ -248,6 +206,71 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera) {
 			addPrim(GetOTAt(GetCurrentBuffer(), 0), line3);
 			IncrementNextPrim(sizeof(LINE_F2));
 		}
+	} else {
+		SVECTOR vm01, vm02, vm03, vm12, vm32, vm13;
+		vm01 = (SVECTOR) {(v0->vx + v1->vx) >> 1, (v0->vy + v1->vy) >> 1, (v0->vz + v1->vz) >> 1};
+		vm02 = (SVECTOR) {(v0->vx + v2->vx) >> 1, (v0->vy + v2->vy) >> 1, (v0->vz + v2->vz) >> 1};
+		vm03 = (SVECTOR) {(v0->vx + v3->vx) >> 1, (v0->vy + v3->vy) >> 1, (v0->vz + v3->vz) >> 1};
+		vm12 = (SVECTOR) {(v1->vx + v2->vx) >> 1, (v1->vy + v2->vy) >> 1, (v1->vz + v2->vz) >> 1};
+		vm13 = (SVECTOR) {(v1->vx + v3->vx) >> 1, (v1->vy + v3->vy) >> 1, (v1->vz + v3->vz) >> 1};
+		vm32 = (SVECTOR) {(v3->vx + v2->vx) >> 1, (v3->vy + v2->vy) >> 1, (v3->vz + v2->vz) >> 1};
+
+		RenderQuadRecursive(face, v0, &vm01, &vm02, &vm03, level+1, depth);
+		RenderQuadRecursive(face, &vm01, v1, &vm03, &vm13, level+1, depth);
+		RenderQuadRecursive(face, &vm02, &vm03, v2, &vm32, level+1, depth);
+		RenderQuadRecursive(face, &vm03, &vm13, &vm32, v3, level+1, depth);
+	}
+}
+
+void RenderTrackSection(Track *track, Section *section, Camera *camera, u_long distmag) {
+	int i, depth;
+
+	MATRIX worldmat;
+	MATRIX viewmat;
+
+	VECTOR pos;
+	SVECTOR rot;
+	VECTOR scale;
+
+	SVECTOR v0, v1, v2, v3;
+
+	setVector(&pos,0,0,0);
+	setVector(&rot,0,0,0);
+	setVector(&scale,ONE,ONE,ONE);
+
+	worldmat = (MATRIX){0};
+	RotMatrix(&rot, &worldmat);
+	TransMatrix(&worldmat, &pos);
+	ScaleMatrix(&worldmat,&scale);
+//	CompMatrixLV(&camera->lookat, &worldmat, &viewmat);
+	CompMatrixLV(&camera->rotmat, &worldmat, &viewmat);
+	SetRotMatrix(&viewmat);
+	SetTransMatrix(&viewmat);
+
+	for(i=0; i<section->numfaces;i++) {
+		Face *face = track->faces + section->facestart + i;
+
+		v0.vx = (short) (track->vertices[face->indices[1]].vx - camera->position.vx);
+		v0.vy = (short) (track->vertices[face->indices[1]].vy - camera->position.vy);
+		v0.vz = (short) (track->vertices[face->indices[1]].vz - camera->position.vz);
+
+		v1.vx = (short) (track->vertices[face->indices[0]].vx - camera->position.vx);
+		v1.vy = (short) (track->vertices[face->indices[0]].vy - camera->position.vy);
+		v1.vz = (short) (track->vertices[face->indices[0]].vz - camera->position.vz);
+
+		v2.vx = (short) (track->vertices[face->indices[2]].vx - camera->position.vx);
+		v2.vy = (short) (track->vertices[face->indices[2]].vy - camera->position.vy);
+		v2.vz = (short) (track->vertices[face->indices[2]].vz - camera->position.vz);
+
+		v3.vx = (short) (track->vertices[face->indices[3]].vx - camera->position.vx);
+		v3.vy = (short) (track->vertices[face->indices[3]].vy - camera->position.vy);
+		v3.vz = (short) (track->vertices[face->indices[3]].vz - camera->position.vz);
+
+		depth = 0;
+		if(distmag < 600000) depth = 1;
+		if(distmag < 200000) depth = 2;
+
+		RenderQuadRecursive(face, &v0, &v1, &v2, &v3, 0, depth);
 	}
 }
 
@@ -271,7 +294,7 @@ void RenderTrack(Track *track, Camera *camera) {
 		distmagsq = (d.vx*d.vx) + (d.vy*d.vy) + (d.vz*d.vz);
 		distmag = SquareRoot12(distmagsq);
 		if(distmag <= far_clip) {
-			RenderTrackSection(track, current_section, camera);
+			RenderTrackSection(track, current_section, camera, distmag);
 		}
 		current_section = current_section->next;
 	} while(current_section != track->sections); // to prevent looping
