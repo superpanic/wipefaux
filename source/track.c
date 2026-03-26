@@ -139,7 +139,11 @@ void LoadTrackSections(Track *track, char *filename) {
 	free3(bytes);
 }
 
-void RenderQuadRecursive(Face *face, SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, u_short level, u_short depth) {
+void RenderQuadRecursive(Face *face, 
+	SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, 
+	UV *uv0, UV *uv1, UV *uv2, UV *uv3, 
+	u_short level, u_short depth) 
+	{
 	if(level >= depth) {
 		short nclip; // can be positive or negative
 		long otz;
@@ -173,7 +177,8 @@ void RenderQuadRecursive(Face *face, SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVEC
 			poly->b0 = face->color.b;
 			poly->tpage = face->tpage;
 			poly->clut = face->clut;
-			setUV4(poly, face->u0, face->v0, face->u1, face->v1, face->u2, face->v2, face->u3, face->v3);
+			setUV4(poly, uv0->u, uv0->v, uv1->u, uv1->v, uv2->u, uv2->v, uv3->u, uv3->v);
+//			setUV4(poly, face->u0, face->v0, face->u1, face->v1, face->u2, face->v2, face->u3, face->v3);
 			addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
 			IncrementNextPrim(sizeof(POLY_FT4));
 
@@ -207,18 +212,26 @@ void RenderQuadRecursive(Face *face, SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVEC
 			IncrementNextPrim(sizeof(LINE_F2));
 		}
 	} else {
-		SVECTOR vm01, vm02, vm03, vm12, vm32, vm13;
+		SVECTOR vm01, vm02, vm03, vm32, vm13;
+		UV uvm01, uvm02, uvm03, uvm13, uvm23;
+		
+		uvm01 = (UV) {uv1->u >> 1, uv1->v >> 1};
+		uvm02 = (UV) {uv2->u >> 1, uv2->v >> 1};
+		uvm03 = (UV) {uv3->u >> 1, uv3->v >> 1};
+		uvm13 = (UV) {uv1->u,      uv3->v >> 1};
+		uvm23 = (UV) {uv3->u >> 1, uv2->v};
+
 		vm01 = (SVECTOR) {(v0->vx + v1->vx) >> 1, (v0->vy + v1->vy) >> 1, (v0->vz + v1->vz) >> 1};
 		vm02 = (SVECTOR) {(v0->vx + v2->vx) >> 1, (v0->vy + v2->vy) >> 1, (v0->vz + v2->vz) >> 1};
 		vm03 = (SVECTOR) {(v0->vx + v3->vx) >> 1, (v0->vy + v3->vy) >> 1, (v0->vz + v3->vz) >> 1};
-		vm12 = (SVECTOR) {(v1->vx + v2->vx) >> 1, (v1->vy + v2->vy) >> 1, (v1->vz + v2->vz) >> 1};
 		vm13 = (SVECTOR) {(v1->vx + v3->vx) >> 1, (v1->vy + v3->vy) >> 1, (v1->vz + v3->vz) >> 1};
 		vm32 = (SVECTOR) {(v3->vx + v2->vx) >> 1, (v3->vy + v2->vy) >> 1, (v3->vz + v2->vz) >> 1};
 
-		RenderQuadRecursive(face, v0, &vm01, &vm02, &vm03, level+1, depth);
-		RenderQuadRecursive(face, &vm01, v1, &vm03, &vm13, level+1, depth);
-		RenderQuadRecursive(face, &vm02, &vm03, v2, &vm32, level+1, depth);
-		RenderQuadRecursive(face, &vm03, &vm13, &vm32, v3, level+1, depth);
+		// TODO: continue here!
+		RenderQuadRecursive(face, v0, &vm01, &vm02, &vm03, uv0, &uvm01, &uvm02, &uvm03, level+1, depth);
+		RenderQuadRecursive(face, &vm01, v1, &vm03, &vm13, &uvm01, uv1, &uvm03, &uvm13, level+1, depth);
+		RenderQuadRecursive(face, &vm02, &vm03, v2, &vm32, &uvm02, &uvm03, uv2, &uvm23, level+1, depth);
+		RenderQuadRecursive(face, &vm03, &vm13, &vm32, v3, &uvm03, &uvm13, &uvm23, uv3,level+1, depth);
 	}
 }
 
@@ -247,6 +260,8 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera, u_long d
 	SetRotMatrix(&viewmat);
 	SetTransMatrix(&viewmat);
 
+	UV uv0,uv1,uv2,uv3;
+
 	for(i=0; i<section->numfaces;i++) {
 		Face *face = track->faces + section->facestart + i;
 
@@ -270,7 +285,12 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera, u_long d
 		if(distmag < 600000) depth = 1;
 		if(distmag < 200000) depth = 2;
 
-		RenderQuadRecursive(face, &v0, &v1, &v2, &v3, 0, depth);
+		uv0 = (UV) {face->u0, face->v0}; //printf("uv0: %d %d\n", uv0.u, uv0.v);
+		uv1 = (UV) {face->u1, face->v1}; //printf("uv1: %d %d\n", uv1.u, uv1.v);
+		uv2 = (UV) {face->u2, face->v2}; //printf("uv2: %d %d\n", uv2.u, uv2.v);
+		uv3 = (UV) {face->u3, face->v3}; //printf("uv3: %d %d\n\n", uv3.u, uv3.v);
+
+		RenderQuadRecursive(face, &v0, &v1, &v2, &v3, &uv0, &uv1, &uv2, &uv3, 0, depth);
 	}
 }
 

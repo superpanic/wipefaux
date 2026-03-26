@@ -192,8 +192,6 @@ Texture *UploadTextureToVRAM(long timptr) {
 			// right after the clut, where the texture data starts;
 			DrawSync(0);
 
-			printf("clut4 loaded, result: %d\n", lm);
-
 			break;
 		}
 		case CLUT_8BIT: {

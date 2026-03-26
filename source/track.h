@@ -54,12 +54,20 @@ typedef struct Section {
 	long numsections;
 	Section *sections;
  } Track;
+
+ typedef struct UV {
+	short u;
+	short v;
+ } UV;
  
 void LoadTrackVertices(Track *track, char *filename); // .TRV file
 void LoadTrackFaces(Track *track, char *filename, u_short texture_counter);    // .TRF file
 void LoadTrackSections(Track *track, char *filename); // .TRS file
 
-void RenderQuadRecursive(Face *face, SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, u_short level, u_short depth);
+void RenderQuadRecursive(Face *face, 
+	SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, 
+	UV *uv0, UV *uv1, UV *uv2, UV *uv3, 
+	u_short level, u_short depth);
 void RenderTrackSection(Track *track, Section *section, Camera *camera, u_long distmag);
 void RenderTrack(Track *track, Camera *camera);
 
