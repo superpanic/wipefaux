@@ -215,11 +215,11 @@ void RenderQuadRecursive(Face *face,
 		SVECTOR vm01, vm02, vm03, vm32, vm13;
 		UV uvm01, uvm02, uvm03, uvm13, uvm23;
 		
-		uvm01 = (UV) {uv1->u >> 1, uv1->v >> 1};
-		uvm02 = (UV) {uv2->u >> 1, uv2->v >> 1};
-		uvm03 = (UV) {uv3->u >> 1, uv3->v >> 1};
-		uvm13 = (UV) {uv1->u,      uv3->v >> 1};
-		uvm23 = (UV) {uv3->u >> 1, uv2->v};
+		uvm01 = (UV) { (uv0->u + uv1->u) >> 1, (uv0->v + uv1->v) >> 1 };
+		uvm02 = (UV) { (uv0->u + uv2->u) >> 1, (uv0->v + uv2->v) >> 1 };
+		uvm03 = (UV) { (uv0->u + uv3->u) >> 1, (uv0->v + uv3->v) >> 1 };
+		uvm13 = (UV) { (uv1->u + uv3->u) >> 1, (uv1->v + uv3->v) >> 1 };
+		uvm23 = (UV) { (uv2->u + uv3->u) >> 1, (uv2->v + uv3->v) >> 1 };
 
 		vm01 = (SVECTOR) {(v0->vx + v1->vx) >> 1, (v0->vy + v1->vy) >> 1, (v0->vz + v1->vz) >> 1};
 		vm02 = (SVECTOR) {(v0->vx + v2->vx) >> 1, (v0->vy + v2->vy) >> 1, (v0->vz + v2->vz) >> 1};
