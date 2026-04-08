@@ -182,6 +182,7 @@ void RenderQuadRecursive(Face *face,
 			addPrim(GetOTAt(GetCurrentBuffer(), otz), poly);
 			IncrementNextPrim(sizeof(POLY_FT4));
 
+#if 0
 			// draw lines
 			line0 = (LINE_F2*) GetNextPrim();
 			SetLineF2(line0);
@@ -210,6 +211,8 @@ void RenderQuadRecursive(Face *face,
 			setRGB0(line3,0,0,0);
 			addPrim(GetOTAt(GetCurrentBuffer(), 0), line3);
 			IncrementNextPrim(sizeof(LINE_F2));
+#endif
+
 		}
 	} else {
 		SVECTOR vm01, vm02, vm03, vm32, vm13;

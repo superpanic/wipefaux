@@ -4,7 +4,11 @@
 #include <sys/types.h>
 #include "object.h"
 
+#define CDROM (1)
+
 char *FileRead(char *filename, u_long *length);
+char *FileReadCD(char *filename, u_long *length);
+char *FileReadRAM(char *filename, u_long *length);
 
 char GetChar(u_char *bytes, u_long *b);
 

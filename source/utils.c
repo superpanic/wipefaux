@@ -7,9 +7,57 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <libcd.h>
+#include <memory.h>
+
+// ====================== RAM FILE TABLE ======================
+typedef struct {
+    const char* filename;   // string to match against
+    u_long      address;    // where the data lives in RAM
+    u_long      size;       // exact original size (not padded)
+} RamFile;
+
+RamFile ramFiles[] = {
+    { "\\MENU.DAT;1",  0x80200000, 123456 },   // replace with real names & sizes
+    { "\\LEVEL1.DAT;1",0x80300000, 987654 },
+    { "\\TEXTURES.DAT;1", 0x80400000, 234567 },
+    // add all files you need here
+    { NULL, 0, 0 }  // terminator
+};
+
+char *FileRead(char *filename, u_long *length) {
+	if(CDROM) return FileReadCD(filename, length);
+	else return FileReadRAM(filename, length);
+}
+
+// returns a malloc buffer, use free! (keeps same API as before)
+char *FileReadRAM(char *filename, u_long *length) {
+    char *buffer = NULL;
+    *length = 0;
+
+    // Find the file in our RAM table
+    for (int i = 0; ramFiles[i].filename != NULL; i++) {
+        if (strcmp(ramFiles[i].filename, filename) == 0) {
+            u_long size = ramFiles[i].size;
+            *length = size;
+
+            // Allocate and copy from RAM
+            buffer = (char*) malloc3((size + 2047) & ~2047);  // pad to sector if you want
+            if (buffer) {
+                memcpy(buffer, (void*)ramFiles[i].address, size);
+                printf("Loaded %s from RAM (0x%08X, %lu bytes)\n", filename, ramFiles[i].address, size);
+            } else {
+                printf("Error allocating %lu bytes for %s!\n", size, filename);
+            }
+            return buffer;
+        }
+    }
+
+    printf("%s file not found in RAM table.\n", filename);
+    return NULL;
+}
 
 // returns a malloc buffer, use free!
-char *FileRead(char *filename, u_long *length) {
+char *FileReadCD(char *filename, u_long *length) {
 	CdlFILE filepos;
 	int numsectors;
 	char *buffer;

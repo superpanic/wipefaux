@@ -15,13 +15,16 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "track.h"
+#include "ship.h"
 
 extern char __heap_start, __sp;
 
 Camera camera;
 Object *ships;
-Object *current_ship;
+//Object *current_ship;
 u_short ship_index;
+
+Ship ship;
 
 Track track;
 
@@ -37,6 +40,7 @@ void Setup(void) {
 	u_short shipstarttexture;
 	u_short scenestarttexture;
 	u_short trackstarttexture;
+	VECTOR startpos;
 
 	HeapSize(0x5000); // 20480
 	ScreenInit();
@@ -67,29 +71,28 @@ void Setup(void) {
 	ships = (Object *) malloc3(sizeof(Object));
 	u_char n_ships = LoadObjectsPRM(ships, "\\ALLSH.PRM;1", shipstarttexture);
 	if(DEBUG) PrintObjectNames(ships, n_ships);
-	current_ship = GetObjectByIndex(ships,1);
+	ship.object = GetObjectByIndex(ships,1);
 
-	//scene_objects = (Object *) malloc3(sizeof(Object));
-	//u_char n_scene_objects = LoadObjectsPRM(scene_objects, "\\TRACK02\\SCENE.PRM;1", scene_texture_counter);
+	setVector(&startpos, 32599, -347, -45310);
+	ShipInit(&ship, &track, &startpos);
 
-	setVector(&current_ship->position, 32599, -347, -45310);
-	setVector(&camera.position, current_ship->position.vx, current_ship->position.vy-200, current_ship->position.vz-800);
+	setVector(&camera.position, ship.object->position.vx, ship.object->position.vy-200, ship.object->position.vz-800);
 	camera.lookat = (MATRIX){0};
 	camera.rotmat = (MATRIX){0};
 }
 
 void NextObject() {
-	if(current_ship->next)
-		current_ship = current_ship->next;
+	if(ship.object->next)
+		ship.object = ship.object->next;
 }
 
 void PrevObject() {
-	if(current_ship->prev)
-		current_ship = current_ship->prev;
+	if(ship.object->prev)
+		ship.object = ship.object->prev;
 }
 
 void PrintPrev() {
-	printf("previous: %s\n", current_ship->prev->name);
+	printf("previous: %s\n", ship.object->prev->name);
 }
 
 void Update(void) {
@@ -98,21 +101,30 @@ void Update(void) {
 	JoyPadUpdate();
 
 	if(JoyPadCheck(PAD1_LEFT)) {
-		camera.position.vx -= 100;
+		ship.object->rotation.vy -= 10;
 	}
 
 	if(JoyPadCheck(PAD1_RIGHT)) {
-		camera.position.vx += 100;
+		ship.object->rotation.vy += 10;
 	}
 
 	if(JoyPadCheck(PAD1_UP)) {
-		camera.position.vz += 100;
-		current_ship->position.vz += 100;
+		ship.object->rotation.vx -= 10;
 	}
 
 	if(JoyPadCheck(PAD1_DOWN)) {
-		camera.position.vz -= 100;
-		current_ship->position.vz -= 100;
+		ship.object->rotation.vx += 10;
+	}
+
+	if(JoyPadCheck(PAD1_CROSS)) {
+		ship.thrustmag += 1;
+	} else if (ship.thrustmag > 0) {
+		ship.thrustmag -= 100;
+	} else {
+		ship.thrustmag = 0;
+	}
+	if(ship.thrustmag > ship.thrustmax) {
+		ship.thrustmag = ship.thrustmax;
 	}
 
 	/* select ship
@@ -125,16 +137,18 @@ void Update(void) {
 	//angle += 2;
 	//current_ship->rotation.vy = angle;
 
+	ShipUpdate(&ship);
+
 	LookAt(
 		&camera, 
 		&camera.position, 
-		&current_ship->position, 
+		&ship.object->position, 
 		&(VECTOR){ 0, -ONE, 0 }
 	);
 
 	//RenderSceneObjects(scene_objects, &camera);
 	RenderTrack(&track, &camera);
-	RenderObject(current_ship, &camera);
+	RenderObject(ship.object, &camera);
 }
 
 void Render(void) {
