@@ -3,8 +3,8 @@
 
 void ShipInit(Ship *ship, Track *track, VECTOR *startpos) {
 	ship->object->position.vx = startpos->vx;
-	ship->object->position.vx = startpos->vy;
-	ship->object->position.vx = startpos->vz;
+	ship->object->position.vy = startpos->vy;
+	ship->object->position.vz = startpos->vz;
 
 	ship->vel = (VECTOR) {0,0,0};
 	ship->acc = (VECTOR) {0,0,0};
@@ -28,12 +28,30 @@ void ShipInit(Ship *ship, Track *track, VECTOR *startpos) {
 }
 
 void ShipUpdate(Ship *ship) {
-	printf("Updating the ship frame per frame! --> THRUST MAG: %d\n", ship->thrustmag);
-	// 1. find the orientation matrix and update orientation
-	// 2. compute forward vel (speed * forward vector)
-	// 3. compute the thrust force vector (thrustmag * forward vector)
-	// 4. find the total force being applied on the ship
-	// 5. compute the acceleration
-	// 6. compute the new velocity based on acceleration
-	// 7. compute the new position based on velocity
+	VECTOR force;
+	
+	ship->forward = (VECTOR) {0,0,ONE};
+	ship->thrust.vx = (ship->thrustmag * ship->forward.vx);
+	ship->thrust.vy = (ship->thrustmag * ship->forward.vy);
+	ship->thrust.vz = (ship->thrustmag * ship->forward.vz);
+
+	force = (VECTOR){0,0,0};
+	force.vx = ship->thrust.vx;
+	force.vy = ship->thrust.vy;
+	force.vz = ship->thrust.vz;
+
+	// a = F/m
+	ship->acc.vx += force.vx / ship->mass;
+	ship->acc.vy += force.vy / ship->mass;
+	ship->acc.vz += force.vz / ship->mass;
+
+	// update velocity
+	ship->vel.vx += ship->acc.vx;
+	ship->vel.vy += ship->acc.vy;
+	ship->vel.vz += ship->acc.vz;
+
+	// update position
+	ship->object->position.vx += ship->vel.vx;
+	ship->object->position.vy += ship->vel.vy;
+	ship->object->position.vz += ship->vel.vz;
 }

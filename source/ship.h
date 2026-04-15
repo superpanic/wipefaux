@@ -8,6 +8,8 @@
 typedef struct Ship {
 	Object *object;
 
+	VECTOR right, up, forward;
+
 	VECTOR vel;
 	VECTOR acc;
 

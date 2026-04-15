@@ -4,6 +4,7 @@
 #include "track.h"
 #include "globals.h"
 #include "libgpu.h"
+#include "stddef.h"
 #include "utils.h"
 #include "inline_n.h"
 #include "libgte.h"
@@ -16,8 +17,6 @@ void LoadTrackVertices(Track *track, char *filename) {
 	u_char *bytes;
 	u_long biggest_val = 0;
 	u_long smallest_val = LONG_MAX;
-	printf("biggest value init: %ld\n", biggest_val);
-	printf("smallest value init: %ld\n", smallest_val);
 	bytes = (u_char *) FileRead(filename, &length);
 	if(bytes == NULL) {
 		printf("Error reading %s from the CD.\n", filename);

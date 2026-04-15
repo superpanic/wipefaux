@@ -7,17 +7,17 @@ File System:
 
     Type  Name             Length    LBA       Timecode    Bytes     Source File
 
-    Dummy <DUMMY>          1024      486       00:08:36    2097152   
-    File  ALLSH.CMP;1      24        63        00:02:63    48469     ASSETS\COMMON\ALLSH.CMP
-    File  ALLSH.PRM;1      15        87        00:03:12    29684     ASSETS\COMMON\ALLSH.PRM
-    File  MAIN.EXE;1       39        24        00:02:24    79872     wipefaux.ps-exe
+    Dummy <DUMMY>          1024      487       00:08:37    2097152   
+    File  ALLSH.CMP;1      24        64        00:02:64    48469     ASSETS\COMMON\ALLSH.CMP
+    File  ALLSH.PRM;1      15        88        00:03:13    29684     ASSETS\COMMON\ALLSH.PRM
+    File  MAIN.EXE;1       40        24        00:02:24    81920     wipefaux.ps-exe
     File  SYSTEM.CNF;1     1         23        00:02:23    55        SYSTEM.TXT
-    Dir   TRACK02                    102       00:03:27              
-    File  LIBRARY.CMP;1    38        447       00:07:72    77525     ASSETS\TRACK02\LIBRARY.CMP
-    File  LIBRARY.TTF;1    1         485       00:08:35    924       ASSETS\TRACK02\LIBRARY.TTF
-    File  SCENE.CMP;1      43        103       00:03:28    87087     ASSETS\TRACK02\SCENE.CMP
-    File  SCENE.PRM;1      203       146       00:03:71    415664    ASSETS\TRACK02\SCENE.PRM
-    File  TRACK.TRF;1      26        375       00:07:00    52880     ASSETS\TRACK02\TRACK.TRF
-    File  TRACK.TRS;1      46        401       00:07:26    92508     ASSETS\TRACK02\TRACK.TRS
-    File  TRACK.TRV;1      26        349       00:06:49    52048     ASSETS\TRACK02\TRACK.TRV
+    Dir   TRACK02                    103       00:03:28              
+    File  LIBRARY.CMP;1    38        448       00:07:73    77525     ASSETS\TRACK02\LIBRARY.CMP
+    File  LIBRARY.TTF;1    1         486       00:08:36    924       ASSETS\TRACK02\LIBRARY.TTF
+    File  SCENE.CMP;1      43        104       00:03:29    87087     ASSETS\TRACK02\SCENE.CMP
+    File  SCENE.PRM;1      203       147       00:03:72    415664    ASSETS\TRACK02\SCENE.PRM
+    File  TRACK.TRF;1      26        376       00:07:01    52880     ASSETS\TRACK02\TRACK.TRF
+    File  TRACK.TRS;1      46        402       00:07:27    92508     ASSETS\TRACK02\TRACK.TRS
+    File  TRACK.TRV;1      26        350       00:06:50    52048     ASSETS\TRACK02\TRACK.TRV
     End   TRACK02

@@ -74,6 +74,7 @@ void Setup(void) {
 	ship.object = GetObjectByIndex(ships,1);
 
 	setVector(&startpos, 32599, -347, -45310);
+	
 	ShipInit(&ship, &track, &startpos);
 
 	setVector(&camera.position, ship.object->position.vx, ship.object->position.vy-200, ship.object->position.vz-800);
