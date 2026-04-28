@@ -428,7 +428,15 @@ u_char LoadObjectsPRM(Object *root, char *filename, u_short texture_counter) {
 		object->position.vy = object->origin.vy;
 		object->position.vz = object->origin.vz;
 		object->scale = (VECTOR) {ONE, ONE, ONE};
-		object->rotation = (SVECTOR) {0,0,0};
+		
+		// init rotation matrix with the identity matrix (I)
+		object->rotmat.m[0][0] = ONE; 		object->rotmat.m[0][1] = 0; 		object->rotmat.m[0][2] = 0;
+		object->rotmat.m[1][0] = 0; 		object->rotmat.m[1][1] = ONE; 		object->rotmat.m[1][2] = 0;
+		object->rotmat.m[2][0] = 0; 		object->rotmat.m[2][1] = 0; 		object->rotmat.m[2][2] = ONE;
+
+		object->rotmat.t[0] = 0;
+		object->rotmat.t[1] = 0;
+		object->rotmat.t[2] = 0;
 
 		if(DEBUG) {
 			printf("object pos: %li %li %li\n", 
@@ -458,7 +466,7 @@ void RenderObject(Object *object, Camera *camera) {
 	MATRIX worldmat;
 	MATRIX viewmat;
 
-	RotMatrix(&object->rotation, &worldmat);
+	worldmat = object->rotmat; // start the world matrix with the rotation matrix that comes with the object
 	TransMatrix(&worldmat, &object->position);
 	ScaleMatrix(&worldmat,&object->scale);
 

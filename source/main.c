@@ -102,31 +102,27 @@ void Update(void) {
 	JoyPadUpdate();
 
 	if(JoyPadCheck(PAD1_LEFT)) {
-		ship.object->rotation.vy -= 10;
+		ship.yaw -= 50;
 	}
 
 	if(JoyPadCheck(PAD1_RIGHT)) {
-		ship.object->rotation.vy += 10;
+		ship.yaw += 50;
 	}
 
 	if(JoyPadCheck(PAD1_UP)) {
-		ship.object->rotation.vx -= 10;
+		ship.pitch -= 10;
 	}
 
 	if(JoyPadCheck(PAD1_DOWN)) {
-		ship.object->rotation.vx += 10;
+		ship.pitch += 10;
 	}
 
 	if(JoyPadCheck(PAD1_CROSS)) {
-		ship.thrustmag += 1;
-	} else if (ship.thrustmag > 0) {
+		ship.thrustmag += 10;
+	} else if(ship.thrustmag > 0) {
 		ship.thrustmag -= 100;
-	} else {
-		ship.thrustmag = 0;
 	}
-	if(ship.thrustmag > ship.thrustmax) {
-		ship.thrustmag = ship.thrustmax;
-	}
+	if(ship.thrustmag > ship.thrustmax) ship.thrustmag = ship.thrustmax;
 
 	/* select ship
 		if(JoyLeftDown()) { PrevObject(); }
@@ -139,6 +135,10 @@ void Update(void) {
 	//current_ship->rotation.vy = angle;
 
 	ShipUpdate(&ship);
+
+	camera.position.vx = ship.object->position.vx;
+	camera.position.vy = ship.object->position.vy-500;
+	camera.position.vz = ship.object->position.vz-800;
 
 	LookAt(
 		&camera, 
