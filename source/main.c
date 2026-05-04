@@ -150,6 +150,8 @@ void Update(void) {
 	//RenderSceneObjects(scene_objects, &camera);
 	RenderTrack(&track, &camera);
 	RenderObject(ship.object, &camera);
+
+	DrawXYZAxis(&ship, &camera);
 }
 
 void Render(void) {
