@@ -229,7 +229,6 @@ void RenderQuadRecursive(Face *face,
 		vm13 = (SVECTOR) {(v1->vx + v3->vx) >> 1, (v1->vy + v3->vy) >> 1, (v1->vz + v3->vz) >> 1};
 		vm32 = (SVECTOR) {(v3->vx + v2->vx) >> 1, (v3->vy + v2->vy) >> 1, (v3->vz + v2->vz) >> 1};
 
-		// TODO: continue here!
 		RenderQuadRecursive(face, v0, &vm01, &vm02, &vm03, uv0, &uvm01, &uvm02, &uvm03, level+1, depth);
 		RenderQuadRecursive(face, &vm01, v1, &vm03, &vm13, &uvm01, uv1, &uvm03, &uvm13, level+1, depth);
 		RenderQuadRecursive(face, &vm02, &vm03, v2, &vm32, &uvm02, &uvm03, uv2, &uvm23, level+1, depth);

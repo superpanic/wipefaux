@@ -35,6 +35,7 @@ void ShipInit(Ship *ship, Track *track, VECTOR *startpos) {
 
 void ShipUpdate(Ship *ship) {
 	VECTOR force;
+	VECTOR new_nose_vel;
 
 	// rsin, rcos are buggy in nugget
 	// use (slower) csin ccos instead
@@ -59,15 +60,26 @@ void ShipUpdate(Ship *ship) {
 	ship->forward.vy = (-sinx);
 	ship->forward.vz = (cosy * cosx) >> 12;
 
-	ship->thrust.vx = (ship->thrustmag * ship->forward.vx) >> 12;
-	ship->thrust.vy = (ship->thrustmag * ship->forward.vy) >> 12;
-	ship->thrust.vz = (ship->thrustmag * ship->forward.vz) >> 12;
+	ship->thrust.vx = (ship->thrustmag * ship->forward.vx) >> 6;
+	ship->thrust.vy = (ship->thrustmag * ship->forward.vy) >> 6;
+	ship->thrust.vz = (ship->thrustmag * ship->forward.vz) >> 6;
+
+	// compute the velocity magnitude
+	ship->speed = SquareRoot0(ship->vel.vx * ship->vel.vx + ship->vel.vy * ship->vel.vy + ship->vel.vz * ship->vel.vz);
+
+	new_nose_vel.vx = (ship->forward.vx * ship->speed) >> 12;
+	new_nose_vel.vy = (ship->forward.vy * ship->speed) >> 12;
+	new_nose_vel.vz = (ship->forward.vz * ship->speed) >> 12;
 
 	force = (VECTOR){0,0,0};
-	// TODO: subtract drag
 	force.vx += ship->thrust.vx;
 	force.vy += ship->thrust.vy;
 	force.vz += ship->thrust.vz;
+
+	// set the acceleration
+	ship->acc.vx = (new_nose_vel.vx - ship->vel.vx);
+	ship->acc.vy = (new_nose_vel.vy - ship->vel.vy);
+	ship->acc.vz = (new_nose_vel.vz - ship->vel.vz);
 
 	// a = F/m
 	ship->acc.vx += force.vx / ship->mass;
@@ -165,9 +177,9 @@ void DrawXYZAxis(Ship *ship, Camera *camera) {
 
 	polyd = (POLY_F3*) GetNextPrim();
 	SetPolyF3(polyd);
-	v0.vx = (short)(ship->up.vx >> 4);
-	v0.vy = (short)(ship->up.vy >> 4);
-	v0.vz = (short)(ship->up.vz >> 4);
+	v0.vx = (short)-(ship->up.vx >> 4);
+	v0.vy = (short)-(ship->up.vy >> 4);
+	v0.vz = (short)-(ship->up.vz >> 4);
 	v1 = v2 = v0;
 	otz = RotTransPers(&v0, (long*)&polyd->x0, NULL, NULL);
 	otz += RotTransPers(&v1, (long*)&polyd->x1, NULL, NULL);
@@ -191,4 +203,66 @@ void DrawXYZAxis(Ship *ship, Camera *camera) {
 	setXY2(&lineC, polya->x0, polya->y0, polyd->x0, polyd->y0);
 	setRGB0(&lineC, 10, 255, 110);
 	DrawPrim(&lineC);
+}
+
+void DrawXYZAxis2(Ship *ship, Camera *camera) {
+	SVECTOR origin = {0,0,0};
+
+	SVECTOR fwd_tip = {
+		(short)(ship->forward.vx >> 3),
+		(short)(ship->forward.vy >> 3),
+		(short)(ship->forward.vz >> 3)
+	};
+
+	SVECTOR right_tip = {
+		(short)(ship->right.vx >> 4),
+		(short)(ship->right.vy >> 4),
+		(short)(ship->right.vz >> 4)
+	};
+
+	SVECTOR up_tip = {
+		(short)-(ship->up.vx >> 4),
+		(short)-(ship->up.vy >> 4),
+		(short)-(ship->up.vz >> 4)
+	};
+
+	DVECTOR origin2d, fwd2d, right2d, up2d;
+
+	SVECTOR rot = {0,0,0};
+	MATRIX worldmat, viewmat;
+
+	RotMatrix(&rot, &worldmat);
+	TransMatrix(&worldmat, &ship->object->position);
+	ScaleMatrix(&worldmat, &ship->object->scale);
+	CompMatrixLV(&camera->lookat, &worldmat, &viewmat);
+	SetRotMatrix(&viewmat);
+	SetTransMatrix(&viewmat);
+
+	// project the 4 points directly to 2D screen space
+	long dummy_otz; // line drawing on top of everything, no need for depth
+	RotTransPers(&origin,(long*)&origin2d, &dummy_otz, NULL);
+	RotTransPers(&fwd_tip,(long*)&fwd2d, &dummy_otz, NULL);
+	RotTransPers(&right_tip,(long*)&right2d, &dummy_otz, NULL);
+	RotTransPers(&up_tip,(long*)&up2d, &dummy_otz, NULL);
+
+	LINE_F2 line;
+
+	// forward (blue)
+	SetLineF2(&line);
+	setXY2(&line, origin2d.vx, origin2d.vy, fwd2d.vx, fwd2d.vy);
+	setRGB0(&line, 55, 150, 255);
+	DrawPrim(&line);
+
+	// right (red)
+	SetLineF2(&line);
+	setXY2(&line, origin2d.vx, origin2d.vy, right2d.vx, right2d.vy);
+	setRGB0(&line, 255, 55, 87);
+	DrawPrim(&line);
+
+	// up (green)
+	SetLineF2(&line);
+	setXY2(&line, origin2d.vx, origin2d.vy, up2d.vx, up2d.vy);
+	setRGB0(&line, 10, 255, 110);
+	DrawPrim(&line);
+
 }

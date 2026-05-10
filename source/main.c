@@ -136,6 +136,7 @@ void Update(void) {
 
 	ShipUpdate(&ship);
 
+	// TODO: make the camera line up behind the ship, using the forward, up and right!
 	camera.position.vx = ship.object->position.vx;
 	camera.position.vy = ship.object->position.vy-500;
 	camera.position.vz = ship.object->position.vz-800;
@@ -151,7 +152,7 @@ void Update(void) {
 	RenderTrack(&track, &camera);
 	RenderObject(ship.object, &camera);
 
-	DrawXYZAxis(&ship, &camera);
+	DrawXYZAxis2(&ship, &camera);
 }
 
 void Render(void) {
