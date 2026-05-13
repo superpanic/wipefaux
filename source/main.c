@@ -137,9 +137,15 @@ void Update(void) {
 	ShipUpdate(&ship);
 
 	// TODO: make the camera line up behind the ship, using the forward, up and right!
-	camera.position.vx = ship.object->position.vx;
-	camera.position.vy = ship.object->position.vy-500;
-	camera.position.vz = ship.object->position.vz-800;
+
+
+	//camera.position.vx = ship.object->position.vx;
+	//camera.position.vy = ship.object->position.vy-500;
+	//camera.position.vz = ship.object->position.vz-800;
+
+	camera.position.vx = (ship.object->position.vx) - (ship.forward.vx>>1) - (ship.up.vx>>3);
+	camera.position.vy = (ship.object->position.vy) - (ship.forward.vy>>1) - (ship.up.vy>>3);
+	camera.position.vz = (ship.object->position.vz) - (ship.forward.vz>>1) - (ship.up.vz>>3);
 
 	LookAt(
 		&camera, 
