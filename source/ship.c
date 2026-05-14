@@ -22,13 +22,14 @@ void ShipInit(Ship *ship, Track *track, VECTOR *startpos) {
 	ship->pitch = 0;
 	ship->roll  = 0;
 
-	ship->accyaw   = 0;
+	ship->yawpower = 128;
+	ship->velyaw   = 0;
 	ship->accpitch = 0;
 	ship->accroll  = 0;
 
 	ship->speed     = 0;
 	ship->thrustmag = 0;
-	ship->thrustmax = 700;
+	ship->thrustmax = 15000;
 
 	ship->mass = 150;
 }
@@ -60,9 +61,9 @@ void ShipUpdate(Ship *ship) {
 	ship->forward.vy = (-sinx);
 	ship->forward.vz = (cosy * cosx) >> 12;
 
-	ship->thrust.vx = (ship->thrustmag * ship->forward.vx) >> 6;
-	ship->thrust.vy = (ship->thrustmag * ship->forward.vy) >> 6;
-	ship->thrust.vz = (ship->thrustmag * ship->forward.vz) >> 6;
+	ship->thrust.vx = (ship->thrustmag * ship->forward.vx) >> 12;
+	ship->thrust.vy = (ship->thrustmag * ship->forward.vy) >> 12;
+	ship->thrust.vz = (ship->thrustmag * ship->forward.vz) >> 12;
 
 	// compute the velocity magnitude
 	ship->speed = SquareRoot0(ship->vel.vx * ship->vel.vx + ship->vel.vy * ship->vel.vy + ship->vel.vz * ship->vel.vz);
@@ -95,6 +96,11 @@ void ShipUpdate(Ship *ship) {
 	ship->object->position.vx += ship->vel.vx >> 6;
 	ship->object->position.vy += ship->vel.vy >> 6;
 	ship->object->position.vz += ship->vel.vz >> 6;
+
+	// update the yaw, pitch, roll
+	ship->yaw += ship->velyaw >> 6;
+	ship->pitch += ship->accpitch;
+	ship->roll += ship->accroll;
 
 	ship->object->rotmat.m[0][0] = ship->right.vx;
 	ship->object->rotmat.m[1][0] = ship->right.vy;

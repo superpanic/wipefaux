@@ -97,17 +97,38 @@ void PrintPrev() {
 }
 
 void Update(void) {
+
+	VECTOR up = (VECTOR){ 0, -ONE, 0 };
 	EmptyOT(GetCurrentBuffer());
 
 	JoyPadUpdate();
 
 	if(JoyPadCheck(PAD1_LEFT)) {
-		ship.yaw -= 50;
+		if(ship.velyaw <= 0) {
+			ship.velyaw -= ship.yawpower;
+		} else {
+			ship.velyaw -= ship.yawpower<<1;
+		}
+	} else if(JoyPadCheck(PAD1_RIGHT)) {
+		if(ship.velyaw >= 0) {
+			ship.velyaw += ship.yawpower;
+		} else {
+			ship.velyaw += ship.yawpower<<1;
+		}
+	} else { // decay
+		if(ship.velyaw != 0) {
+			if(ship.velyaw > 0) {
+				ship.velyaw -= ship.yawpower<<1;
+			} else if(ship.velyaw < 0) {
+				ship.velyaw += ship.yawpower<<1;
+			}
+			if(ship.velyaw > -ship.yawpower && ship.velyaw < ship.yawpower) {
+				ship.velyaw = 0;
+			}
+		}
 	}
-
-	if(JoyPadCheck(PAD1_RIGHT)) {
-		ship.yaw += 50;
-	}
+	if(ship.velyaw < -2048) ship.velyaw = -2048;
+	if(ship.velyaw > +2048) ship.velyaw = +2048;
 
 	if(JoyPadCheck(PAD1_UP)) {
 		ship.pitch -= 10;
@@ -118,9 +139,9 @@ void Update(void) {
 	}
 
 	if(JoyPadCheck(PAD1_CROSS)) {
-		ship.thrustmag += 10;
+		ship.thrustmag += 3000;
 	} else if(ship.thrustmag > 0) {
-		ship.thrustmag -= 100;
+		ship.thrustmag -= 15000;
 	}
 	if(ship.thrustmag > ship.thrustmax) ship.thrustmag = ship.thrustmax;
 
@@ -136,22 +157,15 @@ void Update(void) {
 
 	ShipUpdate(&ship);
 
-	// TODO: make the camera line up behind the ship, using the forward, up and right!
-
-
-	//camera.position.vx = ship.object->position.vx;
-	//camera.position.vy = ship.object->position.vy-500;
-	//camera.position.vz = ship.object->position.vz-800;
-
-	camera.position.vx = (ship.object->position.vx) - (ship.forward.vx>>1) - (ship.up.vx>>3);
-	camera.position.vy = (ship.object->position.vy) - (ship.forward.vy>>1) - (ship.up.vy>>3);
-	camera.position.vz = (ship.object->position.vz) - (ship.forward.vz>>1) - (ship.up.vz>>3);
+	camera.position.vx = ship.object->position.vx - (ship.forward.vx>>1) + (up.vx>>3);
+	camera.position.vy = ship.object->position.vy - (ship.forward.vy>>1) + (up.vy>>3);
+	camera.position.vz = ship.object->position.vz - (ship.forward.vz>>1) + (up.vz>>3);
 
 	LookAt(
 		&camera, 
 		&camera.position, 
 		&ship.object->position, 
-		&(VECTOR){ 0, -ONE, 0 }
+		&up
 	);
 
 	//RenderSceneObjects(scene_objects, &camera);

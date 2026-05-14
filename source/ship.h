@@ -18,13 +18,14 @@ typedef struct Ship {
 
 	short yaw, pitch, roll;
 
+	short yawpower;
 	short velyaw, velpitch, velroll;
-	short accyaw, accpitch, accroll;
+	short accvel, accpitch, accroll;
 
 	short mass;
-	short speed;
-	short thrustmag;
-	short thrustmax;
+	long speed;
+	long thrustmag;
+	long thrustmax;
 } Ship;
 
 void ShipInit(Ship *ship, Track *track, VECTOR *startpos);
