@@ -20,12 +20,13 @@ void ShipInit(Ship *ship, Track *track, VECTOR *startpos) {
 
 	ship->yaw   = 0;
 	ship->pitch = 0;
+
 	ship->roll  = 0;
+	ship->roll_max = 256;
+	ship->roll_stabilizer = 10;
 
 	ship->yawpower = 128;
 	ship->velyaw   = 0;
-	ship->accpitch = 0;
-	ship->accroll  = 0;
 
 	ship->speed     = 0;
 	ship->thrustmag = 0;
@@ -99,8 +100,6 @@ void ShipUpdate(Ship *ship) {
 
 	// update the yaw, pitch, roll
 	ship->yaw += ship->velyaw >> 6;
-	ship->pitch += ship->accpitch;
-	ship->roll += ship->accroll;
 
 	ship->object->rotmat.m[0][0] = ship->right.vx;
 	ship->object->rotmat.m[1][0] = ship->right.vy;

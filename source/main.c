@@ -109,12 +109,16 @@ void Update(void) {
 		} else {
 			ship.velyaw -= ship.yawpower<<1;
 		}
+		ship.roll -= 10;
+		if(ship.roll < -ship.roll_max) ship.roll = -ship.roll_max;
 	} else if(JoyPadCheck(PAD1_RIGHT)) {
 		if(ship.velyaw >= 0) {
 			ship.velyaw += ship.yawpower;
 		} else {
 			ship.velyaw += ship.yawpower<<1;
 		}
+		ship.roll += 10;
+		if(ship.roll > ship.roll_max) ship.roll = ship.roll_max;
 	} else { // decay
 		if(ship.velyaw != 0) {
 			if(ship.velyaw > 0) {
@@ -126,16 +130,21 @@ void Update(void) {
 				ship.velyaw = 0;
 			}
 		}
+		if(ship.roll < 0) {
+			ship.roll += ship.roll_stabilizer;
+		} else if(ship.roll > 0) {
+			ship.roll -= ship.roll_stabilizer;
+		}
 	}
 	if(ship.velyaw < -2048) ship.velyaw = -2048;
 	if(ship.velyaw > +2048) ship.velyaw = +2048;
 
 	if(JoyPadCheck(PAD1_UP)) {
-		ship.pitch -= 10;
+		ship.pitch -= 6;
 	}
 
 	if(JoyPadCheck(PAD1_DOWN)) {
-		ship.pitch += 10;
+		ship.pitch += 6;
 	}
 
 	if(JoyPadCheck(PAD1_CROSS)) {

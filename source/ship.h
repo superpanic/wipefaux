@@ -16,11 +16,15 @@ typedef struct Ship {
 	VECTOR thrust;
 	VECTOR drag;
 
-	short yaw, pitch, roll;
+	short yaw, pitch;
+	
+	short roll;
+	short roll_stabilizer;
+	short roll_max;
 
 	short yawpower;
-	short velyaw, velpitch, velroll;
-	short accvel, accpitch, accroll;
+	short velyaw; //, velpitch, velroll;
+	//short accvel, accpitch, accroll;
 
 	short mass;
 	long speed;
