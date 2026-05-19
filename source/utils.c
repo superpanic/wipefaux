@@ -125,3 +125,9 @@ float GetFloatLE(u_char *bytes, u_long *b) {
 	value |= bytes[(*b)++] << 24;
 	return (float) value;
 }
+
+long Clamp16Bits(long value) {
+	if(value > +32767) return +32767;
+	if(value < -32767) return -32767;
+	return value;
+}

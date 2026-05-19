@@ -18,4 +18,6 @@ short GetShortBE(u_char *bytes, u_long *b);
 long GetLongLE(u_char *bytes, u_long *b);
 long GetLongBE(u_char *bytes, u_long *b);
 
+long Clamp16Bits(long value);
+
 #endif

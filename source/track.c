@@ -130,7 +130,7 @@ void LoadTrackSections(Track *track, char *filename) {
 
 		track->sections[i].flags = GetShortBE(bytes, &b);
 		track->sections[i].id = GetShortBE(bytes, &b); // read id
-		track->sections[i].id = i; // overwrite id with index instad
+		track->sections[i].id = i; // overwrite id with index instead
 
 		b+=2;
 	}
@@ -293,12 +293,6 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera, u_long d
 
 		RenderQuadRecursive(face, &v0, &v1, &v2, &v3, &uv0, &uv1, &uv2, &uv3, 0, depth);
 	}
-}
-
-long Clamp16Bits(long value) {
-	if(value > +32767) return +32767;
-	if(value < -32767) return -32767;
-	return value;
 }
 
 void RenderTrack(Track *track, Camera *camera) {

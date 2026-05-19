@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "ship.h"
+#include "utils.h"
 #include <stdio.h>
 #include <libgte.h>
 #include <libgpu.h>
@@ -33,6 +34,26 @@ void ShipInit(Ship *ship, Track *track, VECTOR *startpos) {
 	ship->thrustmax = 15000;
 
 	ship->mass = 150;
+
+	// compute the closest track section
+	Section *current_section = track->sections;
+	ulong distmag, distmagsq;
+	VECTOR d;
+	ulong closest_distmag = -1; // intentional OVERFLOW!
+	ship->section = current_section;
+	do {
+		d.vx = Clamp16Bits(current_section->center.vx - ship->object->position.vx);
+		d.vy = Clamp16Bits(current_section->center.vy - ship->object->position.vy);
+		d.vz = Clamp16Bits(current_section->center.vz - ship->object->position.vz);
+		distmagsq = (d.vx*d.vx) + (d.vy*d.vy) + (d.vz*d.vz);
+		distmag = SquareRoot12(distmagsq);
+		if(distmag < closest_distmag) {
+			closest_distmag = distmag;
+			ship->section = current_section;			
+		}
+		current_section = current_section->next;
+	} while (current_section != track->sections);
+	printf("closest track section is: %d\n", ship->section->id);
 }
 
 void ShipUpdate(Ship *ship) {
