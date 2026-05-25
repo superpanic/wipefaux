@@ -315,7 +315,7 @@ void RenderTrack(Track *track, Camera *camera) {
 
 void RenderTrackAhead(Track *track, Camera *camera, Section *section) {
 	Section *render_section;
-	ushort n_sections = 10;
+	ushort n_sections = 30;
 	ushort i;
 	ushort n_subdiv;
 
