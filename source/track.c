@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "track.h"
+#include "ship.h"
 #include "globals.h"
 #include "libgpu.h"
 #include "stddef.h"
@@ -10,7 +11,6 @@
 #include "libgte.h"
 #include "display.h"
 #include "texture.h"
-
 
 void LoadTrackVertices(Track *track, char *filename) {
 	u_long i, b, length;
@@ -236,7 +236,7 @@ void RenderQuadRecursive(Face *face,
 	}
 }
 
-void RenderTrackSection(Track *track, Section *section, Camera *camera, u_long distmag) {
+void RenderTrackSection(Track *track, Section *section, Camera *camera, u_short n_subdiv) {
 	int i, depth;
 
 	MATRIX worldmat;
@@ -282,9 +282,7 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera, u_long d
 		v3.vy = (short) (track->vertices[face->indices[3]].vy - camera->position.vy);
 		v3.vz = (short) (track->vertices[face->indices[3]].vz - camera->position.vz);
 
-		depth = 0;
-		if(distmag < 600000) depth = 1;
-		if(distmag < 200000) depth = 2;
+		depth = n_subdiv;
 
 		uv0 = (UV) {face->u0, face->v0}; //printf("uv0: %d %d\n", uv0.u, uv0.v);
 		uv1 = (UV) {face->u1, face->v1}; //printf("uv1: %d %d\n", uv1.u, uv1.v);
@@ -313,4 +311,23 @@ void RenderTrack(Track *track, Camera *camera) {
 		}
 		current_section = current_section->next;
 	} while(current_section != track->sections); // to prevent looping
+}
+
+void RenderTrackAhead(Track *track, Camera *camera, Section *section) {
+	Section *render_section;
+	ushort n_sections = 10;
+	ushort i;
+	ushort n_subdiv;
+
+	render_section = section;
+
+	RenderTrackSection(track,render_section->prev, camera, 2);
+
+	for(i = 0; i < n_sections; i++) {
+		n_subdiv = 0;
+		if(i<6) n_subdiv = 1;
+		if(i<2) n_subdiv = 2;
+		RenderTrackSection(track,render_section,camera,n_subdiv);
+		render_section = render_section->next;
+	}
 }

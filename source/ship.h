@@ -35,6 +35,7 @@ typedef struct Ship {
 } Ship;
 
 void ShipInit(Ship *ship, Track *track, VECTOR *startpos);
+void UpdateSection(Ship *ship);
 void ShipUpdate(Ship *ship);
 void DrawXYZAxis(Ship *ship, Camera *camera);
 void DrawXYZAxis2(Ship *ship, Camera *camera);

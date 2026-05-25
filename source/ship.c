@@ -56,6 +56,33 @@ void ShipInit(Ship *ship, Track *track, VECTOR *startpos) {
 	printf("closest track section is: %d\n", ship->section->id);
 }
 
+void UpdateSection(Ship *ship) {
+	VECTOR d;
+	Section *curr_sec = ship->section;
+	Section *next_sec = ship->section->next;
+	ulong next_mag, next_dist;
+	ulong curr_mag, curr_dist;
+
+	// ship distance to next section
+	d.vx = Clamp16Bits(ship->object->position.vx - next_sec->center.vx);
+	d.vy = Clamp16Bits(ship->object->position.vy - next_sec->center.vy);
+	d.vz = Clamp16Bits(ship->object->position.vz - next_sec->center.vz);
+	next_dist = (d.vx*d.vx)+(d.vy*d.vy)+(d.vz*d.vz);
+	next_mag = SquareRoot12(next_dist);
+
+	// ship distance to current section
+	d.vx = Clamp16Bits(ship->object->position.vx - curr_sec->center.vx);
+	d.vy = Clamp16Bits(ship->object->position.vy - curr_sec->center.vy);
+	d.vz = Clamp16Bits(ship->object->position.vz - curr_sec->center.vz);
+	curr_dist = (d.vx*d.vx)+(d.vy*d.vy)+(d.vz*d.vz);
+	curr_mag = SquareRoot12(curr_dist);
+	
+	// update ship section
+	if(next_dist < curr_dist) {
+		ship->section = next_sec;
+	}
+}
+
 void ShipUpdate(Ship *ship) {
 	VECTOR force;
 	VECTOR new_nose_vel;
@@ -122,6 +149,8 @@ void ShipUpdate(Ship *ship) {
 	// update the yaw, pitch, roll
 	ship->yaw += ship->velyaw >> 6;
 
+	UpdateSection(ship);
+	
 	ship->object->rotmat.m[0][0] = ship->right.vx;
 	ship->object->rotmat.m[1][0] = ship->right.vy;
 	ship->object->rotmat.m[2][0] = ship->right.vz;
