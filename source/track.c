@@ -100,7 +100,7 @@ void LoadTrackFaces(Track *track, char *filename, u_short texture_counter) {
 }
 
 void LoadTrackSections(Track *track, char *filename) {
-	u_long i, b, length;
+	u_long i, j, b, length;
 	u_char *bytes;
 	bytes = (u_char *) FileRead(filename, &length);
 	if(bytes == NULL) {
@@ -129,10 +129,21 @@ void LoadTrackSections(Track *track, char *filename) {
 		b+=4;
 
 		track->sections[i].flags = GetShortBE(bytes, &b);
-		track->sections[i].id = GetShortBE(bytes, &b); // read id
+		// don't remove this line:
+			track->sections[i].id = GetShortBE(bytes, &b); // read id
+		//
 		track->sections[i].id = i; // overwrite id with index instead
 
 		b+=2;
+		
+		// loop through all the faces of the section and find the BASE TRACK face
+		for(j=0; j<track->sections[i].numfaces; j++) {
+			Face *face = track->faces + track->sections[i].facestart + j;
+			if(face->flags & FACE_TRACK_BASE) {
+				track->sections[i].normal = face->normal;
+			}
+		}
+
 	}
 
 	free3(bytes);
@@ -291,6 +302,44 @@ void RenderTrackSection(Track *track, Section *section, Camera *camera, u_short 
 
 		RenderQuadRecursive(face, &v0, &v1, &v2, &v3, &uv0, &uv1, &uv2, &uv3, 0, depth);
 	}
+
+	RenderTrackSectionNormal(section, camera);
+}
+
+void RenderTrackSectionNormal(Section *section, Camera *camera) {
+	SVECTOR origin; 
+	VECTOR size = {ONE,ONE,ONE};
+	SVECTOR normal, endpoint;
+	DVECTOR origin2d, endpoint2d;
+	SVECTOR rot = {0,0,0};
+	MATRIX worldmat, viewmat;
+
+	endpoint.vx = section->normal.vx >> 4;
+	endpoint.vy = section->normal.vy >> 4;
+	endpoint.vz = section->normal.vz >> 4;
+
+	origin.vx = 0;
+	origin.vy = 0;
+	origin.vz = 0;
+
+	RotMatrix(&rot, &worldmat);
+	TransMatrix(&worldmat, &section->center);
+	ScaleMatrix(&worldmat, &size);
+	CompMatrixLV(&camera->lookat, &worldmat, &viewmat);
+	SetRotMatrix(&viewmat);
+	SetTransMatrix(&viewmat);
+
+	long dummy_otz; // not needed as we draw on top of everything
+	RotTransPers(&origin, (long*)&origin2d, &dummy_otz, NULL);
+	RotTransPers(&endpoint, (long*)&endpoint2d, &dummy_otz, NULL);
+	
+	LINE_F2 line;
+
+	// normal
+	SetLineF2(&line);
+	setXY2(&line, origin2d.vx, origin2d.vy, endpoint2d.vx, endpoint2d.vy);
+	setRGB0(&line, 255, 255, 0);
+	DrawPrim(&line);
 }
 
 void RenderTrack(Track *track, Camera *camera) {
@@ -315,7 +364,7 @@ void RenderTrack(Track *track, Camera *camera) {
 
 void RenderTrackAhead(Track *track, Camera *camera, Section *section) {
 	Section *render_section;
-	ushort n_sections = 30;
+	ushort n_sections = 20;
 	ushort i;
 	ushort n_subdiv;
 

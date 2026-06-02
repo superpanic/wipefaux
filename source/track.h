@@ -71,5 +71,6 @@ void RenderQuadRecursive(Face *face,
 void RenderTrackSection(Track *track, Section *section, Camera *camera, u_short n_subdiv);
 void RenderTrack(Track *track, Camera *camera);
 void RenderTrackAhead(Track *track, Camera *camera, Section *section);
+void RenderTrackSectionNormal(Section *section, Camera *camera);
 
 #endif

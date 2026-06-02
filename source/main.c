@@ -180,9 +180,7 @@ void Update(void) {
 	//RenderSceneObjects(scene_objects, &camera);
 	//RenderTrack(&track, &camera);
 	RenderTrackAhead(&track, &camera, ship.section);
-	
 	RenderObject(ship.object, &camera);
-
 	DrawXYZAxis2(&ship, &camera);
 }
 
