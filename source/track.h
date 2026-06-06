@@ -39,6 +39,7 @@ typedef struct Section {
 
 	VECTOR center;
 	SVECTOR normal;
+	VECTOR basevertex;
 
 	short numfaces;
 	short facestart;

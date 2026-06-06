@@ -86,6 +86,8 @@ void UpdateSection(Ship *ship) {
 void ShipUpdate(Ship *ship) {
 	VECTOR force;
 	VECTOR new_nose_vel;
+	VECTOR base2ship;
+	long dot;
 
 	// rsin, rcos are buggy in nugget
 	// use (slower) csin ccos instead
@@ -121,7 +123,24 @@ void ShipUpdate(Ship *ship) {
 	new_nose_vel.vy = (ship->forward.vy * ship->speed) >> 12;
 	new_nose_vel.vz = (ship->forward.vz * ship->speed) >> 12;
 
+	// compute the dot product to find the heigth of the ship and the track
+	base2ship.vx = ship->object->position.vx - ship->section->basevertex.vx;
+	base2ship.vy = ship->object->position.vy - ship->section->basevertex.vy;
+	base2ship.vz = ship->object->position.vz - ship->section->basevertex.vz;
+	dot = 	((base2ship.vx * ship->section->normal.vx) >> 12) +
+		((base2ship.vy * ship->section->normal.vy) >> 12) +
+		((base2ship.vz * ship->section->normal.vz) >> 12) ;
+
+	printf("Height: %ld\n", dot);
+
+
 	force = (VECTOR){0,0,0};
+
+	// compute and add the force of attraction (down)
+
+	// compute and add the force of repulsion (up)
+
+
 	force.vx += ship->thrust.vx;
 	force.vy += ship->thrust.vy;
 	force.vz += ship->thrust.vz;
