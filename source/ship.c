@@ -35,6 +35,8 @@ void ShipInit(Ship *ship, Track *track, VECTOR *startpos) {
 
 	ship->mass = 150;
 
+	ship->track_distance = 250;
+
 	// compute the closest track section
 	Section *current_section = track->sections;
 	ulong distmag, distmagsq;
@@ -87,7 +89,7 @@ void ShipUpdate(Ship *ship) {
 	VECTOR force;
 	VECTOR new_nose_vel;
 	VECTOR base2ship;
-	long dot;
+	long dot; // height
 
 	// rsin, rcos are buggy in nugget
 	// use (slower) csin ccos instead
@@ -131,15 +133,22 @@ void ShipUpdate(Ship *ship) {
 		((base2ship.vy * ship->section->normal.vy) >> 12) +
 		((base2ship.vz * ship->section->normal.vz) >> 12) ;
 
+	long height = dot;
 	printf("Height: %ld\n", dot);
 
 
 	force = (VECTOR){0,0,0};
 
-	// compute and add the force of attraction (down)
+	// compute and add the force of attraction (down)	
+	force.vx += -ship->section->normal.vx * TRACK_PULL;
+	force.vy += -ship->section->normal.vy * TRACK_PULL;
+	force.vz += -ship->section->normal.vz * TRACK_PULL; 
 
 	// compute and add the force of repulsion (up)
-
+	force.vx += ship->section->normal.vx * TRACK_PUSH / height;
+	force.vy += ship->section->normal.vy * TRACK_PUSH / height;
+	force.vz += ship->section->normal.vz * TRACK_PUSH / height; 
+	
 
 	force.vx += ship->thrust.vx;
 	force.vy += ship->thrust.vy;

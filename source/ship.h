@@ -31,6 +31,8 @@ typedef struct Ship {
 	long thrustmag;
 	long thrustmax;
 
+	short track_distance;
+
 	Section *section; // nearest track section
 } Ship;
 
