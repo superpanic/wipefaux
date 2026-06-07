@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <assert.h>
 #include "ship.h"
 #include "utils.h"
 #include <stdio.h>
@@ -145,6 +146,7 @@ void ShipUpdate(Ship *ship) {
 	force.vz += -ship->section->normal.vz * TRACK_PULL; 
 
 	// compute and add the force of repulsion (up)
+	if(height == 0) height = -1; // avoid 0 div
 	force.vx += ship->section->normal.vx * TRACK_PUSH / height;
 	force.vy += ship->section->normal.vy * TRACK_PUSH / height;
 	force.vz += ship->section->normal.vz * TRACK_PUSH / height; 
