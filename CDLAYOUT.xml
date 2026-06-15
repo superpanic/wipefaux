@@ -17,10 +17,11 @@
 		<license file="LCNSFILE\LICENSEE.DAT"/>
         
 		<directory_tree>
-			<file name="SYSTEM.CNF"	type="data"	source="SYSTEM.TXT"/>
-			<file name="MAIN.EXE"	type="data"	source="wipefaux.ps-exe"/>
-			<file name="ALLSH.CMP"  type="data" 	source="ASSETS\COMMON\ALLSH.CMP"/>
-			<file name="ALLSH.PRM"  type="data" 	source="ASSETS\COMMON\ALLSH.PRM"/>
+			<file name="SYSTEM.CNF"	 type="data"	source="SYSTEM.TXT"/>
+			<file name="MAIN.EXE"	 type="data"	source="wipefaux.ps-exe"/>
+			<file name="ALLSH.CMP"   type="data" 	source="ASSETS\COMMON\ALLSH.CMP"/>
+			<file name="ALLSH.PRM"   type="data" 	source="ASSETS\COMMON\ALLSH.PRM"/>
+			<file name="POWERUP.VAG" type="data"	source="ASSETS\SOUND\POWERUP.VAG"/>
 			<dir name="TRACK02">
 				<file name="SCENE.CMP" type="data" source="ASSETS\TRACK02\SCENE.CMP"/>
 				<file name="SCENE.PRM" type="data" source="ASSETS\TRACK02\SCENE.PRM"/>

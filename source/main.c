@@ -8,8 +8,10 @@
 #include "display.h"
 #include "joypad.h"
 #include "camera.h"
+#include "libspu.h"
 #include "object.h"
 #include "texture.h"
+#include "sound.h"
 #include "utils.h"
 #include "libcd.h"
 #include <stdbool.h>
@@ -27,6 +29,7 @@ u_short ship_index;
 Ship ship;
 
 Track track;
+u_char *sfx;
 
 Object *scene_objects;
 
@@ -41,8 +44,10 @@ void Setup(void) {
 	u_short scenestarttexture;
 	u_short trackstarttexture;
 	VECTOR startpos;
+	u_long sfx_len;
 
 	HeapSize(0x5000); // 20480
+	SoundInit();
 	ScreenInit();
 	CdInit();
 	JoyPadInit();
@@ -71,7 +76,7 @@ void Setup(void) {
 	ships = (Object *) malloc3(sizeof(Object));
 	u_char n_ships = LoadObjectsPRM(ships, "\\ALLSH.PRM;1", shipstarttexture);
 	if(DEBUG) PrintObjectNames(ships, n_ships);
-	ship.object = GetObjectByIndex(ships,1);
+	ship.object = GetObjectByIndex(ships,3);
 
 	setVector(&startpos, 32599, -347, -45310);
 	
@@ -80,6 +85,13 @@ void Setup(void) {
 	setVector(&camera.position, ship.object->position.vx, ship.object->position.vy-200, ship.object->position.vz-800);
 	camera.lookat = (MATRIX){0};
 	camera.rotmat = (MATRIX){0};
+
+	// play sound effect
+	// load VAG file from disk
+	sfx = LoadVAGSound("\\POWERUP.VAG;1", &sfx_len);
+	// transfer VAG data to the SPU and play in one of the channels
+	TransferVAGToSPU(sfx, sfx_len, SPU_0CH);
+	AudioPlay(SPU_0CH);
 }
 
 void NextObject() {

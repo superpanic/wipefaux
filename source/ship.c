@@ -135,8 +135,7 @@ void ShipUpdate(Ship *ship) {
 		((base2ship.vz * ship->section->normal.vz) >> 12) ;
 
 	long height = dot;
-	printf("Height: %ld\n", dot);
-
+	if(height < 50) height = 50; // avoid negative height
 
 	force = (VECTOR){0,0,0};
 
@@ -146,7 +145,6 @@ void ShipUpdate(Ship *ship) {
 	force.vz += -ship->section->normal.vz * TRACK_PULL; 
 
 	// compute and add the force of repulsion (up)
-	if(height == 0) height = -1; // avoid 0 div
 	force.vx += ship->section->normal.vx * TRACK_PUSH / height;
 	force.vy += ship->section->normal.vy * TRACK_PUSH / height;
 	force.vz += ship->section->normal.vz * TRACK_PUSH / height; 

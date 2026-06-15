@@ -8,7 +8,7 @@
 #define OT_LEN 8192
 #define PRIMBUFF_LEN 131072
 #define DEBUG false
-#define TRACK_PULL (128)
+#define TRACK_PULL (100)
 #define TRACK_PUSH (30000)
 
 void EmptyOT(u_short currbuff);

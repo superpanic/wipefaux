@@ -144,6 +144,7 @@ void LoadTrackSections(Track *track, char *filename) {
 				track->sections[i].basevertex.vx = track->vertices[face->indices[0]].vx;
 				track->sections[i].basevertex.vy = track->vertices[face->indices[0]].vy;
 				track->sections[i].basevertex.vz = track->vertices[face->indices[0]].vz;
+				break;
 			}
 		}
 
