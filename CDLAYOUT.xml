@@ -22,6 +22,7 @@
 			<file name="ALLSH.CMP"   type="data" 	source="ASSETS\COMMON\ALLSH.CMP"/>
 			<file name="ALLSH.PRM"   type="data" 	source="ASSETS\COMMON\ALLSH.PRM"/>
 			<file name="POWERUP.VAG" type="data"	source="ASSETS\SOUND\POWERUP.VAG"/>
+			<file name="ROCKET.VAG"  type="data"	source="ASSETS\SOUND\ROCKET.VAG"/>
 			<dir name="TRACK02">
 				<file name="SCENE.CMP" type="data" source="ASSETS\TRACK02\SCENE.CMP"/>
 				<file name="SCENE.PRM" type="data" source="ASSETS\TRACK02\SCENE.PRM"/>

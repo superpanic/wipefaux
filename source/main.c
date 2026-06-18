@@ -88,7 +88,8 @@ void Setup(void) {
 
 	// play sound effect
 	// load VAG file from disk
-	sfx = LoadVAGSound("\\POWERUP.VAG;1", &sfx_len);
+	sfx = LoadVAGSound("\\ROCKET.VAG;1", &sfx_len);
+	printf("sound length: %d \n", sfx_len);
 	// transfer VAG data to the SPU and play in one of the channels
 	TransferVAGToSPU(sfx, sfx_len, SPU_0CH);
 	AudioPlay(SPU_0CH);

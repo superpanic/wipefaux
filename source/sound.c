@@ -65,7 +65,7 @@ void TransferVAGToSPU(u_char *data, u_long length, int channel) {
 	spuvoiceattr.voice = channel;
 	spuvoiceattr.volume.left = 0x1FFF;
 	spuvoiceattr.volume.right = 0x1FFF;
-	spuvoiceattr.pitch = 0x1000;
+	spuvoiceattr.pitch = 0x1000>>1; // if sound frequency is 22050, divide pitch with 2 (half of 44100)
 	spuvoiceattr.addr = vagspuaddr;
 	spuvoiceattr.a_mode = SPU_VOICE_LINEARIncN; // attack curve
 	spuvoiceattr.s_mode = SPU_VOICE_LINEARIncN; // sustain curve
