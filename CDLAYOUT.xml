@@ -21,8 +21,12 @@
 			<file name="MAIN.EXE"	 type="data"	source="wipefaux.ps-exe"/>
 			<file name="ALLSH.CMP"   type="data" 	source="ASSETS\COMMON\ALLSH.CMP"/>
 			<file name="ALLSH.PRM"   type="data" 	source="ASSETS\COMMON\ALLSH.PRM"/>
-			<file name="POWERUP.VAG" type="data"	source="ASSETS\SOUND\POWERUP.VAG"/>
-			<file name="ROCKET.VAG"  type="data"	source="ASSETS\SOUND\ROCKET.VAG"/>
+			<dir name="AUDIO01">
+				<file name="COUNT1.VAG" type="data"	source="ASSETS\SOUND\COUNT1.VAG"/>
+				<file name="COUNT2.VAG" type="data"	source="ASSETS\SOUND\COUNT2.VAG"/>
+				<file name="COUNT3.VAG" type="data"	source="ASSETS\SOUND\COUNT3.VAG"/>
+				<file name="COUNTGO.VAG" type="data"	source="ASSETS\SOUND\COUNTGO.VAG"/>
+			</dir>
 			<dir name="TRACK02">
 				<file name="SCENE.CMP" type="data" source="ASSETS\TRACK02\SCENE.CMP"/>
 				<file name="SCENE.PRM" type="data" source="ASSETS\TRACK02\SCENE.PRM"/>

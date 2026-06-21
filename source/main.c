@@ -87,12 +87,14 @@ void Setup(void) {
 	camera.rotmat = (MATRIX){0};
 
 	// play sound effect
-	// load VAG file from disk
-	sfx = LoadVAGSound("\\ROCKET.VAG;1", &sfx_len);
-	printf("sound length: %d \n", sfx_len);
-	// transfer VAG data to the SPU and play in one of the channels
-	TransferVAGToSPU(sfx, sfx_len, SPU_0CH);
-	AudioPlay(SPU_0CH);
+//	sfx = LoadVAGSound("\\COUNT1.VAG;1", &sfx_len);
+	QSoundName("\\AUDIO01\\COUNTGO.VAG;1");
+	QSoundName("\\AUDIO01\\COUNT1.VAG;1");
+	QSoundName("\\AUDIO01\\COUNT2.VAG;1");
+	QSoundName("\\AUDIO01\\COUNT3.VAG;1");
+
+	//TransferVAGToSPU(sfx, sfx_len, SPU_0CH);
+	//AudioPlay(SPU_0CH);
 }
 
 void NextObject() {
@@ -195,6 +197,7 @@ void Update(void) {
 	RenderTrackAhead(&track, &camera, ship.section);
 	RenderObject(ship.object, &camera);
 	DrawXYZAxis2(&ship, &camera);
+	AudioUpdate();
 }
 
 void Render(void) {
