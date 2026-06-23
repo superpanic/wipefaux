@@ -57,8 +57,8 @@ void Setup(void) {
 	shipstarttexture = GetTextureCount();
 	LoadTextureCMP("\\ALLSH.CMP;1", NULL); // all textures for all ships
 
-	scenestarttexture = GetTextureCount();
-	LoadTextureCMP("\\TRACK02\\SCENE.CMP;1", NULL); // all textures for the scene
+	//scenestarttexture = GetTextureCount();
+	//LoadTextureCMP("\\TRACK02\\SCENE.CMP;1", NULL); // all textures for the scene
 	
 	// load textures and tile information from the CD-rom
 	trackstarttexture = GetTextureCount();
@@ -95,6 +95,7 @@ void Setup(void) {
 
 	//TransferVAGToSPU(sfx, sfx_len, SPU_0CH);
 	//AudioPlay(SPU_0CH);
+	PlayAudioTrack(3);
 }
 
 void NextObject() {

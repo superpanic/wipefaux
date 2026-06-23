@@ -1,5 +1,8 @@
 #include "sound.h"
 #include "libspu.h"
+#include "libcd.h"
+#include <libetc.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 #define SOUND_MALLOC_MAX (10)
@@ -9,6 +12,10 @@ static SpuVoiceAttr spuvoiceattr;
 
 static u_long vagspuaddr;
 static char spumallocrec[SPU_MALLOC_RECSIZ * (SOUND_MALLOC_MAX + 1)];
+
+static int numtoc;
+static CdlLOC loc[100];
+
 
 #define SOUNDQ_MAX (4)
 static Snd soundq[SOUNDQ_MAX];
@@ -83,6 +90,35 @@ void TransferVAGToSPU(u_char *data, u_long length, int channel) {
 	spuvoiceattr.rr = 0x00;
 	spuvoiceattr.sl = 0x00;
 	SpuSetVoiceAttr(&spuvoiceattr);
+}
+
+void PlayAudioTrack(u_short tracknum) {
+	u_int i;
+	u_char param[4];
+	u_char result[8];
+
+	// transfer by Direct Memory Access
+	SpuSetTransferMode(SpuTransByDMA);
+
+	while((numtoc = CdGetToc(loc)) == 0) {
+		printf("No TOC found: Please use CD-DA disc...\n");
+	}
+
+	printf("NUMTOC = %d\n", numtoc);
+
+	for(i=1; i<numtoc; i++) { // 1-indexed
+		CdIntToPos(CdPosToInt(&loc[i]) - 74, &loc[i]);
+		printf("TOC[%d] ---> Track=%d --> Minute=%d --> Second = %d\n", i, loc[i].track, loc[i].minute, loc[i].second);
+	}
+
+	param[0] = CdlModeRept | CdlModeDA;
+
+	CdControlB(CdlSetmode, param, 0);
+
+	VSync(3);
+
+	CdControlB(CdlPlay, (u_char *) &loc[tracknum], 0);
+
 }
 
 void AudioUpdate() {

@@ -18,6 +18,8 @@ void SoundInit(void);
 u_char *LoadVAGSound(char *filename, u_long *length);
 void TransferVAGToSPU(u_char *data, u_long length, int channel);
 
+void PlayAudioTrack(u_short tracknum);
+
 void AudioPlay(int channel);
 void AudioFree(unsigned long address);
 u_long VAGSamplingRate(u_char *data);

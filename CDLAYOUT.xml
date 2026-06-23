@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <iso_project image_name="GAME.ISO" cue_sheet="GAME.CUE" no_xa="0">
-
 	<track type="data">
-
 		<identifiers
 			system           = "PLAYSTATION"
 			application      = "PLAYSTATION"
@@ -13,9 +10,7 @@
 			data_preparer    = "MKPSXISO"
 			copyright        = "COPYLEFT"
 		/>
-
 		<license file="LCNSFILE\LICENSEE.DAT"/>
-        
 		<directory_tree>
 			<file name="SYSTEM.CNF"	 type="data"	source="SYSTEM.TXT"/>
 			<file name="MAIN.EXE"	 type="data"	source="wipefaux.ps-exe"/>
@@ -40,7 +35,8 @@
 			</dir>
 			<dummy sectors="1024"/>
 		</directory_tree>
-        
 	</track>
-    
+	<track type="audio" source="ASSETS\MUSIC\JUNGLE.WAV"/>
+	<track type="audio" source="ASSETS\MUSIC\IRON01.WAV"/>
+	<track type="audio" source="ASSETS\MUSIC\IRON02.WAV"/>
 </iso_project>
